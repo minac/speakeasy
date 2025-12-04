@@ -4,7 +4,10 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, ttk
 
+from src.logger import get_logger
 from src.settings import Settings
+
+logger = get_logger(__name__)
 
 
 class SettingsWindow:
@@ -17,6 +20,7 @@ class SettingsWindow:
             settings: Settings instance
             available_voices: List of available voice names
         """
+        logger.info("creating_settings_window", voice_count=len(available_voices))
         self._settings = settings
         self._available_voices = available_voices
 
@@ -38,6 +42,7 @@ class SettingsWindow:
 
         # Create UI
         self._create_widgets()
+        logger.debug("settings_window_created")
 
     def _load_settings(self):
         """Load current settings into variables."""
@@ -146,5 +151,7 @@ class SettingsWindow:
 
     def show(self):
         """Display the window."""
+        logger.info("showing_settings_window")
         self._window.deiconify()
         self._window.focus_force()
+        logger.debug("settings_window_visible")

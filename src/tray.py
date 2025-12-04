@@ -6,12 +6,17 @@ import pystray
 from PIL import Image, ImageDraw
 from pystray import Menu, MenuItem
 
+from src.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class TrayApplication:
     """Menu bar application for TTS controls."""
 
     def __init__(self):
         """Initialize TrayApplication."""
+        logger.info("initializing_tray_app")
         self._is_playing = False
         self._is_paused = False
         self._speed = 1.0
@@ -29,6 +34,7 @@ class TrayApplication:
             "Piper TTS Reader",
             menu=menu,
         )
+        logger.info("tray_app_initialized")
 
     def _create_icon_image(self) -> Image.Image:
         """Create a simple icon image.
@@ -127,6 +133,7 @@ class TrayApplication:
             icon: pystray Icon
             item: pystray MenuItem
         """
+        logger.info("read_text_clicked")
         # TODO: Open input window
         pass
 
@@ -148,17 +155,21 @@ class TrayApplication:
             icon: pystray Icon
             item: pystray MenuItem
         """
+        logger.info("play_pause_clicked", is_playing=self._is_playing, is_paused=self._is_paused)
         if self._is_paused:
             # Resume playback
             self._is_paused = False
+            logger.info("resuming_playback")
             # TODO: Resume audio player
         elif self._is_playing:
             # Pause playback
             self._is_paused = True
+            logger.info("pausing_playback")
             # TODO: Pause audio player
         else:
             # Start playback
             self._is_playing = True
+            logger.info("starting_playback")
             # TODO: Start audio player
 
     def _stop(self, icon, item):
@@ -191,6 +202,7 @@ class TrayApplication:
             icon: pystray Icon
             item: pystray MenuItem
         """
+        logger.info("settings_clicked")
         # TODO: Open settings window
         pass
 
@@ -206,5 +218,7 @@ class TrayApplication:
 
     def run(self):
         """Start the tray application."""
+        logger.info("starting_tray_icon")
         if self._icon:
             self._icon.run()
+        logger.info("tray_icon_stopped")

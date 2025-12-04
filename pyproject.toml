@@ -14,6 +14,7 @@ dependencies = [
     "beautifulsoup4>=4.12.0",
     "pydub>=0.25.0",
     "pynput>=1.7.6",
+    "structlog>=24.1.0",
 ]
 
 [project.optional-dependencies]

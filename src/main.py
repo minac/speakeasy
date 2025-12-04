@@ -6,6 +6,7 @@ from pathlib import Path
 from src.audio_player import AudioPlayer
 from src.export import AudioExporter
 from src.hotkeys import HotkeyManager
+from src.logger import configure_logging, get_logger
 from src.settings import Settings
 from src.text_extractor import TextExtractor
 from src.tray import TrayApplication
@@ -13,18 +14,24 @@ from src.tts_engine import PiperTTSEngine
 from src.ui.input_window import InputWindow
 from src.ui.settings_window import SettingsWindow
 
+logger = get_logger(__name__)
+
 
 class PiperTTSApp:
     """Main application coordinator."""
 
     def __init__(self):
         """Initialize application."""
+        logger.info("initializing_piper_tts_app")
+
         # Initialize hidden tkinter root for Toplevel windows
         self._tk_root = tk.Tk()
         self._tk_root.withdraw()
+        logger.debug("tkinter_root_created")
 
         # Load settings
         self._settings = Settings()
+        logger.debug("settings_loaded")
 
         # Initialize TTS engine
         voices_dir = Path(__file__).parent.parent / "voices"
@@ -59,6 +66,8 @@ class PiperTTSApp:
 
         # Wire up event handlers
         self._setup_event_handlers()
+
+        logger.info("piper_tts_app_initialized")
 
     def _setup_event_handlers(self):
         """Wire up all event handlers."""
@@ -133,6 +142,7 @@ class PiperTTSApp:
 
     def _on_open_settings(self):
         """Open settings window."""
+        logger.info("showing_settings_window")
         available_voices = self._tts_engine.discover_voices()
         settings_window = SettingsWindow(self._settings, available_voices)
         settings_window.show()
@@ -149,6 +159,7 @@ class PiperTTSApp:
 
     def _show_input_window(self):
         """Show input window for text/URL entry."""
+        logger.info("showing_input_window")
         input_window = InputWindow(self._on_text_submitted)
         input_window.show()
 
@@ -175,15 +186,23 @@ class PiperTTSApp:
 
     def run(self):
         """Start the application."""
+        logger.info("starting_application")
+
         # Start hotkey listener
         self._hotkey_manager.start()
+        logger.debug("hotkey_manager_started")
 
         # Run tray app (blocking)
         self._tray_app.run()
 
+        logger.info("application_stopped")
+
 
 def main():
     """Entry point."""
+    configure_logging("INFO")
+    logger.info("piper_tts_starting")
+
     app = PiperTTSApp()
     app.run()
 

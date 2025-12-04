@@ -3,6 +3,10 @@
 import tkinter as tk
 from collections.abc import Callable
 
+from src.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class InputWindow:
     """Dialog for text or URL input."""
@@ -13,6 +17,7 @@ class InputWindow:
         Args:
             callback: Function to call with submitted text
         """
+        logger.info("creating_input_window")
         self._callback = callback
         self._window = tk.Toplevel()
         self._window.title("Piper TTS Reader")
@@ -23,6 +28,7 @@ class InputWindow:
 
         # Create UI elements
         self._create_widgets()
+        logger.debug("input_window_created")
 
     def _create_widgets(self):
         """Create all window widgets."""
@@ -104,5 +110,7 @@ class InputWindow:
 
     def show(self):
         """Display the window."""
+        logger.info("showing_input_window")
         self._window.deiconify()
         self._window.focus_force()
+        logger.debug("input_window_visible")
