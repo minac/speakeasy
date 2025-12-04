@@ -24,10 +24,9 @@ class PiperTTSApp:
         """Initialize application."""
         logger.info("initializing_piper_tts_app")
 
-        # Initialize hidden tkinter root for Toplevel windows
-        self._tk_root = tk.Tk()
-        self._tk_root.withdraw()
-        logger.debug("tkinter_root_created")
+        # Tkinter root will be created lazily when first window is opened
+        self._tk_root = None
+        logger.debug("tkinter_deferred")
 
         # Load settings
         self._settings = Settings()
@@ -157,6 +156,7 @@ class PiperTTSApp:
     def _on_open_settings(self):
         """Open settings window."""
         logger.info("showing_settings_window")
+        self._ensure_tk_root()
         available_voices = self._tts_engine.discover_voices()
         settings_window = SettingsWindow(self._settings, available_voices)
         settings_window.show()
@@ -174,8 +174,16 @@ class PiperTTSApp:
     def _show_input_window(self):
         """Show input window for text/URL entry."""
         logger.info("showing_input_window")
+        self._ensure_tk_root()
         input_window = InputWindow(self._on_text_submitted)
         input_window.show()
+
+    def _ensure_tk_root(self):
+        """Ensure tkinter root exists."""
+        if self._tk_root is None:
+            logger.info("creating_tk_root")
+            self._tk_root = tk.Tk()
+            self._tk_root.withdraw()
 
     def _on_text_submitted(self, text: str):
         """Handle text submission from input window."""
@@ -207,19 +215,6 @@ class PiperTTSApp:
         # self._hotkey_manager.start()
         # logger.debug("hotkey_manager_started")
         logger.warning("hotkeys_disabled_temporarily")
-
-        # Schedule tkinter updates while tray runs
-        def process_tk_events():
-            """Process pending tkinter events periodically."""
-            try:
-                self._tk_root.update()
-            except Exception as e:
-                logger.error("tk_update_failed", error=str(e))
-            # Schedule next update
-            self._tk_root.after(50, process_tk_events)
-
-        # Start tkinter event processing
-        process_tk_events()
 
         # Run tray app (blocking)
         self._tray_app.run()
