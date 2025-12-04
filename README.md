@@ -1,6 +1,6 @@
 # Piper TTS Menu Bar Reader
 
-Cross-platform menu bar application for reading text and URLs aloud using Piper TTS.
+macOS menu bar application for reading text and URLs aloud using Piper TTS.
 
 ## Features (In Progress)
 
@@ -10,11 +10,18 @@ Cross-platform menu bar application for reading text and URLs aloud using Piper 
 - ⌨️ Global keyboard shortcuts
 - 🌐 Extract and read text from URLs
 
+## Requirements
+
+- macOS
+- Python 3.10+
+- PortAudio (`brew install portaudio`)
+
 ## Development
 
 ```bash
 # Install dependencies
-uv sync
+brew install portaudio
+uv sync --extra dev
 
 # Run tests
 uv run pytest
@@ -25,4 +32,5 @@ uv run ruff check
 
 ## Project Status
 
-Currently implementing Stage 1: Project Foundation & TTS Core
+Stage 1: Project Foundation & TTS Core ✓
+Stage 2: Audio Playback Controller ✓
