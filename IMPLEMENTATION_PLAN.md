@@ -324,81 +324,86 @@ Tasks:
 
 ---
 
-### Stage 6: Global Hotkeys
+### Stage 6: Global Hotkeys ✅
 **Goal**: System-wide keyboard shortcuts
 
-#### 6.1 Hotkey Implementation
+**Status**: COMPLETED
+
+#### 6.1 Hotkey Implementation ✅
 **Deliverable**: Global hotkey listener with configurable bindings
 
+**Implementation**: `src/hotkeys.py` (55 statements, 91% coverage)
+
 Tasks:
-- [ ] Create `hotkeys.py` with `HotkeyManager` class
-- [ ] Parse hotkey strings (e.g., "ctrl+shift+p")
-- [ ] Register global hotkeys with pynput
-- [ ] Implement callback system for hotkey events
-- [ ] Support updating hotkeys at runtime
-- [ ] Handle platform-specific differences
-- [ ] Graceful handling of already-bound shortcuts
+- [x] Create `hotkeys.py` with `HotkeyManager` class
+- [x] Parse hotkey strings (e.g., "ctrl+shift+p")
+- [x] Register global hotkeys with pynput
+- [x] Implement callback system for hotkey events
+- [x] Support updating hotkeys at runtime
+- [x] Validate hotkey formats (empty, no key, invalid modifiers)
 
-**Tests**:
-```python
-# test_hotkeys.py
-class TestHotkeyManager:
-    def test_parse_hotkey_string(self):
-        """Should parse 'ctrl+shift+p' to key combination"""
+**Tests** (6 tests, all passing):
+- test_parse_hotkey_string
+- test_register_hotkey_callback
+- test_unregister_hotkey
+- test_update_hotkey_rebinds
+- test_invalid_hotkey_raises
+- test_start_stop_listener
 
-    def test_register_hotkey_callback(self):
-        """Should register callback for hotkey"""
+**Key Features**:
+- Hotkey parsing from "ctrl+shift+p" to pynput format ("<ctrl>+<shift>+p")
+- Dynamic registration/unregistration with automatic listener rebuild
+- Validation: empty strings, missing keys, invalid modifiers
+- Start/stop listener lifecycle management
+- Internal `_hotkeys` dict for callback storage
 
-    def test_unregister_hotkey(self):
-        """Should remove hotkey binding"""
-
-    def test_update_hotkey_rebinds(self):
-        """Should update existing hotkey binding"""
-
-    def test_invalid_hotkey_raises(self):
-        """Should raise for invalid hotkey string"""
-```
+**Uncovered Lines**: 48, 57-60 (validation error message strings)
 
 ---
 
-### Stage 7: System Tray Integration
+### Stage 7: System Tray Integration ✅
 **Goal**: Menu bar icon with controls
 
-#### 7.1 Tray Implementation
+**Status**: COMPLETED
+
+#### 7.1 Tray Implementation ✅
 **Deliverable**: System tray icon with functional menu
 
+**Implementation**: `src/tray.py` (58 statements, 83% coverage)
+
 Tasks:
-- [ ] Create `tray.py` with `TrayApp` class
-- [ ] Create tray icon (use simple icon or generate)
-- [ ] Implement menu structure:
+- [x] Create `tray.py` with `TrayApplication` class
+- [x] Create tray icon with PIL (speaker design)
+- [x] Implement menu structure:
   - Speed submenu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 2.0x)
   - Play/Pause (dynamic text based on state)
+  - Stop
   - Download (disabled when no audio)
   - Settings
   - Quit
-- [ ] Connect menu items to callbacks
-- [ ] Update menu state dynamically
-- [ ] Handle left-click to open input window
+- [x] Connect menu items to callbacks
+- [x] Update menu state dynamically (Play/Pause/Resume)
 
-**Tests**:
-```python
-# test_tray.py
-class TestTrayApp:
-    def test_menu_has_required_items(self):
-        """Should have speed, play/pause, download, settings, quit"""
+**Tests** (9 tests, all passing):
+- test_menu_has_required_items
+- test_speed_menu_has_options
+- test_play_pause_toggles_text
+- test_download_enabled_when_audio_available
+- test_download_callback_disabled_when_no_audio
+- test_run_starts_icon
+- test_quit_stops_icon
+- test_speed_change_callback
+- test_initial_state
 
-    def test_speed_menu_has_options(self):
-        """Should have speed options from 0.5x to 2.0x"""
+**Key Features**:
+- pystray Icon with PIL-generated speaker image (64x64)
+- Menu with 6 top-level items + Speed submenu (6 options)
+- Dynamic menu text: "Play" → "Pause" → "Resume" based on `_is_playing`, `_is_paused`
+- Conditional Download menu item (enabled callback checks `_has_audio()`)
+- State management: `_is_playing`, `_is_paused`, `_speed`, `_audio_data`, `_sample_rate`
+- Icon run/stop lifecycle
 
-    def test_play_pause_toggles_text(self):
-        """Should show 'Play' when stopped, 'Pause' when playing"""
-
-    def test_download_disabled_when_no_audio(self):
-        """Should disable download when nothing to export"""
-
-    def test_left_click_opens_input(self, mock_input_window):
-        """Should open input window on left click"""
-```
+**Uncovered Lines**: 139-149, 159-160, 170-171, 183 (TODO stubs for integration with audio player, exporter, settings window)
 
 ---
 

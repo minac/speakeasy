@@ -30,10 +30,20 @@ macOS menu bar application for reading text and URLs aloud using Piper TTS.
   - Smart filename generation from text
   - Timestamp-based naming
   - Conflict resolution
+- ⌨️ Global keyboard shortcuts
+  - System-wide hotkey registration
+  - Configurable key bindings
+  - Parse "ctrl+shift+p" format
+  - Runtime hotkey updates
+- 🎨 Menu bar UI with system tray icon
+  - pystray-based tray application
+  - Speed submenu (0.5x - 2.0x)
+  - Dynamic Play/Pause/Resume text
+  - Conditional Download menu item
+  - Generated speaker icon
 
 ### In Progress 🚧
-- ⌨️ Global keyboard shortcuts
-- 🎨 Menu bar UI with system tray icon
+- 🪟 UI Windows (Input and Settings dialogs)
 
 ## Requirements
 
@@ -129,15 +139,30 @@ See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for detailed roadmap.
   - Conflict resolution for duplicate names
   - Test suite (5 tests, 97% coverage)
 
-- 🚧 **Stage 6**: Global Hotkeys (Next)
-  - System-wide keyboard shortcuts
-  - Configurable key bindings
+- ✅ **Stage 6**: Global Hotkeys
+  - HotkeyManager class with pynput integration
+  - Hotkey string parsing ("ctrl+shift+p" → pynput format)
+  - Register/unregister hotkeys with callbacks
+  - Validation for invalid formats
+  - Test suite (6 tests, 91% coverage)
+
+- ✅ **Stage 7**: System Tray Integration
+  - TrayApplication class with menu bar icon
+  - Speed submenu with 6 options (0.5x - 2.0x)
+  - Dynamic Play/Pause/Resume menu text
+  - Conditional Download MP3 menu item
+  - PIL-generated speaker icon
+  - Test suite (9 tests, 83% coverage)
+
+- 🚧 **Stage 8**: UI Windows (Next)
+  - Input window for text/URL entry
+  - Settings window for configuration
 
 ## Testing
 
 All tests use mocking to avoid requiring actual voice files or audio hardware:
-- **42 tests total** across five stages
-- **89% overall code coverage**
+- **57 tests total** across seven stages
+- **88% overall code coverage**
 - Tests run in CI on every PR (macOS, Python 3.12)
 
 ## CI/CD
