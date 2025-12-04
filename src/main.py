@@ -216,8 +216,21 @@ class PiperTTSApp:
         # logger.debug("hotkey_manager_started")
         logger.warning("hotkeys_disabled_temporarily")
 
-        # Run tray app (blocking)
-        self._tray_app.run()
+        # Create tkinter root and start it
+        self._ensure_tk_root()
+
+        # Set up tray icon in background thread
+        import threading
+        def run_tray():
+            self._tray_app.run()
+
+        tray_thread = threading.Thread(target=run_tray, daemon=False)
+        tray_thread.start()
+        logger.info("tray_thread_started")
+
+        # Run tkinter main loop (must be in main thread on macOS)
+        logger.info("starting_tk_mainloop")
+        self._tk_root.mainloop()
 
         logger.info("application_stopped")
 
