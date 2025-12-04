@@ -60,6 +60,8 @@ class TrayApplication:
             pystray Menu object
         """
         return Menu(
+            MenuItem("Read Text...", self._read_text),
+            Menu.SEPARATOR,
             MenuItem(
                 "Speed",
                 Menu(
@@ -81,6 +83,7 @@ class TrayApplication:
                 self._download,
                 enabled=self._download_enabled,
             ),
+            Menu.SEPARATOR,
             MenuItem("Settings", self._open_settings),
             MenuItem("Quit", self._quit),
         )
@@ -106,17 +109,26 @@ class TrayApplication:
         """
         return self._audio_data is not None and self._sample_rate is not None
 
-    def _download_enabled(self, icon, item) -> bool:
+    def _download_enabled(self, item) -> bool:
         """Check if download should be enabled.
 
         Args:
-            icon: pystray Icon (unused)
             item: pystray MenuItem (unused)
 
         Returns:
             True if download is available
         """
         return self._has_audio()
+
+    def _read_text(self, icon, item):
+        """Open input window for text/URL entry.
+
+        Args:
+            icon: pystray Icon
+            item: pystray MenuItem
+        """
+        # TODO: Open input window
+        pass
 
     def _change_speed(self, icon, item, speed: float):
         """Change playback speed.

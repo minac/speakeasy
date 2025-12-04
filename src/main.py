@@ -68,6 +68,7 @@ class PiperTTSApp:
                 self._hotkey_manager.register(shortcuts["stop"], self._on_stop)
 
         # Connect tray menu actions
+        self._tray_app._read_text = lambda icon, item: self._show_input_window()
         self._tray_app._play_pause = lambda icon, item: self._on_play_pause()
         self._tray_app._stop = lambda icon, item: self._on_stop()
         self._tray_app._download = lambda icon, item: self._on_download()
