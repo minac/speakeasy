@@ -202,9 +202,11 @@ class PiperTTSApp:
         """Start the application."""
         logger.info("starting_application")
 
-        # Start hotkey listener
-        self._hotkey_manager.start()
-        logger.debug("hotkey_manager_started")
+        # TODO: Hotkeys disabled temporarily due to GIL conflicts on macOS
+        # with pystray + tkinter. Need to fix pynput threading.
+        # self._hotkey_manager.start()
+        # logger.debug("hotkey_manager_started")
+        logger.warning("hotkeys_disabled_temporarily")
 
         # Schedule tkinter updates while tray runs
         def process_tk_events():
