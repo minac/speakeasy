@@ -13,7 +13,7 @@ macOS menu bar application for reading text and URLs aloud using Piper TTS.
 ## Requirements
 
 - macOS
-- Python 3.10+
+- Python 3.10 - 3.13 (onnxruntime dependency doesn't support 3.14 yet)
 - PortAudio (`brew install portaudio`)
 
 ## Development
