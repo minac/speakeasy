@@ -82,15 +82,16 @@ class TestInputWindow:
         window = InputWindow(callback)
         window.show()
 
-        # Should call mainloop
-        window._window.mainloop.assert_called_once()
+        # Should call deiconify and focus_force
+        window._window.deiconify.assert_called_once()
+        window._window.focus_force.assert_called_once()
 
     def test_window_initialization(self, mocker):
         """Should initialize window with correct properties."""
         callback = mocker.Mock()
         mock_tk = mocker.patch("src.ui.input_window.tk")
         mock_window = mocker.Mock()
-        mock_tk.Tk.return_value = mock_window
+        mock_tk.Toplevel.return_value = mock_window
 
         InputWindow(callback)
 

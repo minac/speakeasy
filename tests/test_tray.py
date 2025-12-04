@@ -8,7 +8,7 @@ class TestTrayApplication:
     """Test suite for TrayApplication."""
 
     def test_menu_has_required_items(self, mocker):
-        """Should have speed, play/pause, stop, download, settings, quit."""
+        """Should have Read Text, speed, play/pause, stop, download, settings, quit."""
         mock_icon = mocker.patch("src.tray.pystray.Icon")
 
         TrayApplication()
@@ -21,13 +21,16 @@ class TestTrayApplication:
         menu_items = menu._items
 
         # Should have menu items for:
+        # - Read Text
+        # - Separator
         # - Speed submenu
         # - Play/Pause
         # - Stop
         # - Download
+        # - Separator
         # - Settings
         # - Quit
-        assert len(menu_items) == 6
+        assert len(menu_items) == 9
 
     def test_speed_menu_has_options(self, mocker):
         """Should have speed options from 0.5x to 2.0x."""
@@ -40,8 +43,8 @@ class TestTrayApplication:
         menu = icon_call_kwargs["menu"]
         menu_items = menu._items
 
-        # Find speed submenu (first item should be speed)
-        speed_item = menu_items[0]
+        # Find speed submenu (third item after Read Text and separator)
+        speed_item = menu_items[2]
 
         # Speed item should have submenu (check submenu property)
         assert hasattr(speed_item, "submenu")
@@ -93,12 +96,12 @@ class TestTrayApplication:
         app = TrayApplication()
 
         # Should be disabled when no audio
-        assert not app._download_enabled(None, None)
+        assert not app._download_enabled(None)
 
         # Should be enabled when audio available
         app._audio_data = [1, 2, 3]
         app._sample_rate = 22050
-        assert app._download_enabled(None, None)
+        assert app._download_enabled(None)
 
     def test_run_starts_icon(self, mocker):
         """Should start the pystray icon."""

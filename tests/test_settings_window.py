@@ -96,7 +96,7 @@ class TestSettingsWindow:
         mock_tk = mocker.patch("src.ui.settings_window.tk")
         mocker.patch("src.ui.settings_window.ttk")
         mock_window = mocker.Mock()
-        mock_tk.Tk.return_value = mock_window
+        mock_tk.Toplevel.return_value = mock_window
 
         SettingsWindow(mock_settings, ["voice1"])
 
@@ -147,8 +147,9 @@ class TestSettingsWindow:
         window = SettingsWindow(mock_settings, ["voice1"])
         window.show()
 
-        # Should call mainloop
-        window._window.mainloop.assert_called_once()
+        # Should call deiconify and focus_force
+        window._window.deiconify.assert_called_once()
+        window._window.focus_force.assert_called_once()
 
     def test_loads_current_settings(self, mocker):
         """Should load current settings on init."""
