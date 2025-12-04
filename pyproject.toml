@@ -3,7 +3,7 @@ name = "piper-tts-reader"
 version = "0.1.0"
 description = "Cross-platform menu bar application for reading text aloud using Piper TTS"
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "piper-tts>=1.2.0",
     "pystray>=0.19.0",

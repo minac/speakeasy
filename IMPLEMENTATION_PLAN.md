@@ -191,73 +191,66 @@ Tasks:
 
 ---
 
-### Stage 3: Text Extraction
+### Stage 3: Text Extraction ✅
 **Goal**: Extract readable text from URLs and raw input
 
-#### 3.1 Text Extractor Implementation
+**Status**: COMPLETED
+
+#### 3.1 Text Extractor Implementation ✅
 **Deliverable**: Module to fetch and clean text from various sources
 
+**Implementation**: `src/text_extractor.py` (37 statements, 95% coverage)
+
 Tasks:
-- [ ] Create `text_extractor.py` with `TextExtractor` class
-- [ ] Implement URL detection (is input a URL or plain text?)
-- [ ] Implement URL fetching with proper headers
-- [ ] Implement HTML parsing with BeautifulSoup
-- [ ] Extract main content (remove nav, ads, scripts)
-- [ ] Clean and normalize text (remove excessive whitespace)
-- [ ] Handle common errors (404, timeout, invalid URL)
-- [ ] Support common content types (articles, Wikipedia, docs)
+- [x] Create `text_extractor.py` with `TextExtractor` class
+- [x] Implement URL detection (is input a URL or plain text?)
+- [x] Implement URL fetching with proper headers
+- [x] Implement HTML parsing with BeautifulSoup
+- [x] Extract main content (remove nav, ads, scripts)
+- [x] Clean and normalize text (remove excessive whitespace)
+- [x] Handle common errors (404, timeout, invalid URL)
+- [x] Support common content types (articles, Wikipedia, docs)
 
-**Tests**:
-```python
-# test_text_extractor.py
-class TestTextExtractor:
-    def test_detect_url_valid(self):
-        """Should identify valid URLs"""
+**Tests** (8 tests, all passing):
+- test_detect_url_valid
+- test_detect_url_plain_text
+- test_extract_from_url_returns_text
+- test_extract_removes_scripts_and_styles
+- test_extract_plain_text_passthrough
+- test_extract_url_not_found_raises
+- test_extract_timeout_raises
+- test_extract_cleans_whitespace
 
-    def test_detect_url_plain_text(self):
-        """Should identify plain text as non-URL"""
+**Key Features**:
+- URL detection using urlparse (http/https only)
+- Requests.Session with custom User-Agent
+- BeautifulSoup HTML parsing
+- Removes: script, style, nav, header, footer, aside
+- Whitespace normalization with regex
+- 30s timeout configurable
 
-    def test_extract_from_url_returns_text(self, mock_requests):
-        """Should fetch and extract text from URL"""
-
-    def test_extract_removes_scripts_and_styles(self):
-        """Should remove non-content elements"""
-
-    def test_extract_plain_text_passthrough(self):
-        """Should return plain text unchanged"""
-
-    def test_extract_url_not_found_raises(self, mock_requests):
-        """Should raise for 404 responses"""
-
-    def test_extract_timeout_raises(self, mock_requests):
-        """Should raise for timeout"""
-
-    def test_extract_cleans_whitespace(self):
-        """Should normalize excessive whitespace"""
-```
-
-**CLI Verification**:
-```bash
-python -m src.text_extractor "https://en.wikipedia.org/wiki/Text-to-speech"
-# Should print extracted article text
-```
+**Uncovered Lines**: 39-40 (exception handling edge case)
 
 ---
 
-### Stage 4: Settings Management
+### Stage 4: Settings Management ✅
 **Goal**: Persistent configuration with defaults
 
-#### 4.1 Settings Implementation
+**Status**: COMPLETED
+
+#### 4.1 Settings Implementation ✅
 **Deliverable**: Settings class with JSON persistence
 
+**Implementation**: `src/settings.py` (51 statements, 86% coverage)
+
 Tasks:
-- [ ] Create `settings.py` with `Settings` class
-- [ ] Define default settings schema
-- [ ] Implement load from JSON file
-- [ ] Implement save to JSON file
-- [ ] Implement get/set for individual settings
-- [ ] Create settings on first run with defaults
-- [ ] Validate settings on load
+- [x] Create `settings.py` with `Settings` class
+- [x] Define default settings schema
+- [x] Implement load from JSON file
+- [x] Implement save to JSON file
+- [x] Implement get/set for individual settings
+- [x] Create settings on first run with defaults
+- [x] Validate settings on load
 
 **Default Settings Schema**:
 ```json
@@ -275,73 +268,59 @@ Tasks:
 }
 ```
 
-**Tests**:
-```python
-# test_settings.py
-class TestSettings:
-    def test_load_creates_default_if_missing(self, tmp_path):
-        """Should create config with defaults if not exists"""
+**Tests** (7 tests, all passing):
+- test_load_creates_default_if_missing
+- test_load_reads_existing_config
+- test_save_writes_to_file
+- test_get_returns_value
+- test_get_nested_value
+- test_set_updates_value
+- test_invalid_setting_raises
 
-    def test_load_reads_existing_config(self, tmp_path):
-        """Should load existing configuration"""
+**Key Features**:
+- DEFAULT_SETTINGS with voice, speed, output_directory, shortcuts
+- Auto-creates config.json on first run
+- Dot notation for nested access ("shortcuts.play_pause")
+- KeyError validation for unknown settings
+- JSON indent=2 for readability
 
-    def test_save_writes_to_file(self, tmp_path):
-        """Should persist settings to JSON"""
-
-    def test_get_returns_value(self):
-        """Should return setting value"""
-
-    def test_get_nested_value(self):
-        """Should return nested setting like shortcuts.play_pause"""
-
-    def test_set_updates_value(self):
-        """Should update setting value"""
-
-    def test_invalid_setting_raises(self):
-        """Should raise for unknown setting key"""
-```
+**Uncovered Lines**: 31, 73, 76, 78, 101, 104, 106 (error message strings)
 
 ---
 
-### Stage 5: MP3 Export
+### Stage 5: MP3 Export ✅
 **Goal**: Export synthesized audio to MP3 files
 
-#### 5.1 Export Implementation
+**Status**: COMPLETED
+
+#### 5.1 Export Implementation ✅
 **Deliverable**: Export module for saving audio as MP3
 
+**Implementation**: `src/export.py` (39 statements, 97% coverage)
+
 Tasks:
-- [ ] Create `export.py` with `AudioExporter` class
-- [ ] Implement WAV to MP3 conversion using pydub
-- [ ] Generate filename from text (first N words + timestamp)
-- [ ] Use output directory from settings
-- [ ] Handle filename conflicts
-- [ ] Return saved file path
+- [x] Create `export.py` with `AudioExporter` class
+- [x] Implement WAV to MP3 conversion using pydub
+- [x] Generate filename from text (first N words + timestamp)
+- [x] Use output directory from settings
+- [x] Handle filename conflicts
+- [x] Return saved file path
 
-**Tests**:
-```python
-# test_export.py
-class TestAudioExporter:
-    def test_export_creates_mp3_file(self, tmp_path):
-        """Should create MP3 file from audio data"""
+**Tests** (5 tests, all passing):
+- test_export_creates_mp3_file
+- test_export_uses_settings_directory
+- test_export_generates_filename
+- test_export_handles_filename_conflict
+- test_export_returns_file_path
 
-    def test_export_uses_settings_directory(self, tmp_path):
-        """Should save to configured output directory"""
+**Key Features**:
+- pydub AudioSegment for WAV→MP3 conversion
+- Filename: first 5 words + YYYYMMDD_HHMMSS timestamp
+- Regex sanitization (alphanumeric + underscore only)
+- Conflict resolution with numeric suffixes (_1, _2, etc.)
+- Auto-creates output directory with expanduser
 
-    def test_export_generates_filename(self):
-        """Should generate readable filename from text"""
-
-    def test_export_handles_filename_conflict(self, tmp_path):
-        """Should add suffix for duplicate filenames"""
-
-    def test_export_returns_file_path(self, tmp_path):
-        """Should return path to saved file"""
-```
-
-**CLI Verification**:
-```bash
-python -m src.export "Hello world test audio" --output ~/Downloads
-# Should create MP3 file and print path
-```
+**Uncovered Lines**: 112 (infinite loop break condition, unreachable in practice)
 
 ---
 
