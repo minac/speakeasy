@@ -15,13 +15,25 @@ macOS menu bar application for reading text and URLs aloud using Piper TTS.
   - Position and duration tracking
   - Playback state management
   - Completion callbacks
+- 🌐 Text extraction from URLs
+  - URL detection with protocol validation
+  - HTTP fetching with proper headers
+  - HTML parsing and content cleaning
+  - Whitespace normalization
+  - Plain text passthrough
+- ⚙️ Settings management
+  - JSON persistence with defaults
+  - Nested settings with dot notation
+  - Voice, speed, output directory, shortcuts
+- 📥 MP3 export
+  - WAV to MP3 conversion
+  - Smart filename generation from text
+  - Timestamp-based naming
+  - Conflict resolution
 
 ### In Progress 🚧
-- 🌐 Extract and read text from URLs
-- 📥 Export audio to MP3
 - ⌨️ Global keyboard shortcuts
 - 🎨 Menu bar UI with system tray icon
-- ⚙️ Settings management and persistence
 
 ## Requirements
 
@@ -66,12 +78,19 @@ piper-tts-chromium-extension/
 ├── src/
 │   ├── tts_engine.py         # Piper TTS wrapper
 │   ├── audio_player.py       # Audio playback controller
+│   ├── text_extractor.py     # URL and text processing
+│   ├── settings.py           # Settings management
+│   ├── export.py             # MP3 export functionality
 │   └── ui/                   # UI components (future)
 ├── tests/
 │   ├── test_tts_engine.py
 │   ├── test_audio_player.py
+│   ├── test_text_extractor.py
+│   ├── test_settings.py
+│   ├── test_export.py
 │   └── conftest.py
 ├── voices/                   # Piper voice models (.onnx)
+├── config.json              # User settings (auto-generated)
 ├── pyproject.toml           # Project metadata and dependencies
 └── IMPLEMENTATION_PLAN.md   # Detailed implementation roadmap
 ```
@@ -92,16 +111,33 @@ See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for detailed roadmap.
   - Thread-safe operations
   - Test suite (13 tests, 83% coverage)
 
-- 🚧 **Stage 3**: Text Extraction (Next)
-  - URL detection and fetching
-  - HTML parsing with BeautifulSoup
-  - Content extraction and cleaning
+- ✅ **Stage 3**: Text Extraction
+  - TextExtractor class with URL detection
+  - HTML parsing and content cleaning
+  - Whitespace normalization
+  - Test suite (8 tests, 95% coverage)
+
+- ✅ **Stage 4**: Settings Management
+  - Settings class with JSON persistence
+  - Default configuration schema
+  - Nested settings access with dot notation
+  - Test suite (7 tests, 86% coverage)
+
+- ✅ **Stage 5**: MP3 Export
+  - AudioExporter class for WAV to MP3 conversion
+  - Smart filename generation with timestamps
+  - Conflict resolution for duplicate names
+  - Test suite (5 tests, 97% coverage)
+
+- 🚧 **Stage 6**: Global Hotkeys (Next)
+  - System-wide keyboard shortcuts
+  - Configurable key bindings
 
 ## Testing
 
 All tests use mocking to avoid requiring actual voice files or audio hardware:
-- **22 tests total** across both stages
-- **87% overall code coverage**
+- **42 tests total** across five stages
+- **89% overall code coverage**
 - Tests run in CI on every PR (macOS, Python 3.13)
 
 ## CI/CD
