@@ -1,5 +1,24 @@
-"""Main application entry point."""
+"""Main application entry point.
 
+Architecture Notes (macOS Threading):
+-------------------------------------
+On macOS, there are conflicting main-thread requirements:
+- pystray (NSApplication) wants the main thread
+- tkinter also requires the main thread for GUI operations
+- pynput uses Core Foundation run loops with main thread affinity
+
+Solution: Use queue-based coordination
+- tkinter owns the main thread and runs mainloop()
+- pystray runs detached via run_detached()
+- pystray callbacks post requests to a thread-safe queue
+- tkinter polls the queue via after() and handles window creation
+
+This keeps all tkinter operations on the main thread while allowing
+pystray to function in a separate context.
+"""
+
+import queue
+import sys
 import tkinter as tk
 from pathlib import Path
 
@@ -16,6 +35,11 @@ from src.ui.settings_window import SettingsWindow
 
 logger = get_logger(__name__)
 
+# Queue message types
+MSG_SHOW_INPUT_WINDOW = "show_input_window"
+MSG_SHOW_SETTINGS_WINDOW = "show_settings_window"
+MSG_QUIT = "quit"
+
 
 class PiperTTSApp:
     """Main application coordinator."""
@@ -24,7 +48,12 @@ class PiperTTSApp:
         """Initialize application."""
         logger.info("initializing_piper_tts_app")
 
+        # Thread-safe queue for cross-thread communication
+        # pystray callbacks post to this, tkinter mainloop polls it
+        self._ui_queue = queue.Queue()
+
         # Initialize hidden tkinter root for Toplevel windows
+        # This MUST be created on the main thread
         self._tk_root = tk.Tk()
         self._tk_root.withdraw()
         logger.debug("tkinter_root_created")
@@ -53,7 +82,7 @@ class PiperTTSApp:
         output_dir = self._settings.get("output_directory")
         self._audio_exporter = AudioExporter(output_dir)
 
-        # Initialize hotkey manager
+        # Initialize hotkey manager (disabled on macOS due to threading conflicts)
         self._hotkey_manager = HotkeyManager()
 
         # Initialize tray application
@@ -71,7 +100,7 @@ class PiperTTSApp:
 
     def _setup_event_handlers(self):
         """Wire up all event handlers."""
-        # Register hotkeys
+        # Register hotkeys (disabled on macOS - see run() method)
         shortcuts = self._settings.get("shortcuts")
         if isinstance(shortcuts, dict):
             if "play_pause" in shortcuts:
@@ -82,25 +111,72 @@ class PiperTTSApp:
                 self._hotkey_manager.register(shortcuts["stop"], self._on_stop)
 
         # Connect tray menu actions
-        self._tray_app._read_text = lambda icon, item: self._show_input_window()
+        # IMPORTANT: These callbacks run in pystray's thread, NOT the main thread.
+        # They must NOT directly create tkinter windows. Instead, they post
+        # requests to the queue which the main thread processes.
+        self._tray_app._read_text = lambda icon, item: self._queue_show_input_window()
         self._tray_app._play_pause = lambda icon, item: self._on_play_pause()
         self._tray_app._stop = lambda icon, item: self._on_stop()
         self._tray_app._download = lambda icon, item: self._on_download()
-        self._tray_app._open_settings = lambda icon, item: self._on_open_settings()
+        self._tray_app._open_settings = lambda icon, item: self._queue_show_settings_window()
         self._tray_app._change_speed = lambda icon, item, speed: self._on_speed_change(
             speed
         )
+        self._tray_app._quit = lambda icon, item: self._queue_quit()
 
         # Audio player completion callback
         self._audio_player.set_completion_callback(self._on_playback_complete)
 
+    def _queue_show_input_window(self):
+        """Queue a request to show the input window (thread-safe)."""
+        logger.debug("queueing_input_window_request")
+        self._ui_queue.put(MSG_SHOW_INPUT_WINDOW)
+
+    def _queue_show_settings_window(self):
+        """Queue a request to show the settings window (thread-safe)."""
+        logger.debug("queueing_settings_window_request")
+        self._ui_queue.put(MSG_SHOW_SETTINGS_WINDOW)
+
+    def _queue_quit(self):
+        """Queue a quit request (thread-safe)."""
+        logger.debug("queueing_quit_request")
+        self._ui_queue.put(MSG_QUIT)
+
+    def _process_ui_queue(self):
+        """Process pending UI requests from the queue.
+
+        This runs on the main thread via tkinter's after() mechanism.
+        """
+        try:
+            while True:
+                try:
+                    msg = self._ui_queue.get_nowait()
+                    logger.debug("processing_queue_message", message=msg)
+
+                    if msg == MSG_SHOW_INPUT_WINDOW:
+                        self._show_input_window()
+                    elif msg == MSG_SHOW_SETTINGS_WINDOW:
+                        self._on_open_settings()
+                    elif msg == MSG_QUIT:
+                        self._shutdown()
+                        return  # Don't schedule another check
+
+                except queue.Empty:
+                    break
+        except Exception as e:
+            logger.error("queue_processing_error", error=str(e), exc_info=True)
+
+        # Schedule next queue check (50ms interval)
+        self._tk_root.after(50, self._process_ui_queue)
+
     def _on_play_pause(self):
         """Handle play/pause action."""
         state = self._audio_player.get_state()
+        logger.info("play_pause_clicked", state=state)
 
         if state == "STOPPED":
-            # Open input window
-            self._show_input_window()
+            # Queue showing input window (don't call directly from pystray thread)
+            self._queue_show_input_window()
         elif state == "PLAYING":
             # Pause
             self._audio_player.pause()
@@ -114,20 +190,23 @@ class PiperTTSApp:
 
     def _on_stop(self):
         """Handle stop action."""
+        logger.info("stop_clicked")
         self._audio_player.stop()
         self._tray_app._is_playing = False
         self._tray_app._is_paused = False
 
     def _on_download(self):
         """Handle download MP3 action."""
+        logger.info("download_clicked")
         if self._current_audio is not None and self._current_sample_rate is not None:
             output_path = self._audio_exporter.export(
                 self._current_audio, self._current_sample_rate, self._current_text or ""
             )
-            print(f"Saved to: {output_path}")
+            logger.info("audio_exported", path=str(output_path))
 
     def _on_speed_change(self, speed: float):
         """Handle speed change."""
+        logger.info("speed_changed", speed=speed)
         self._settings.set("speed", speed)
         self._settings.save()
         self._tray_app._speed = speed
@@ -141,7 +220,10 @@ class PiperTTSApp:
                 )
 
     def _on_open_settings(self):
-        """Open settings window."""
+        """Open settings window.
+
+        This MUST be called from the main thread (via queue processing).
+        """
         logger.info("showing_settings_window")
         available_voices = self._tts_engine.discover_voices()
         settings_window = SettingsWindow(self._settings, available_voices)
@@ -154,17 +236,23 @@ class PiperTTSApp:
 
     def _on_playback_complete(self):
         """Handle playback completion."""
+        logger.debug("playback_complete")
         self._tray_app._is_playing = False
         self._tray_app._is_paused = False
 
     def _show_input_window(self):
-        """Show input window for text/URL entry."""
+        """Show input window for text/URL entry.
+
+        This MUST be called from the main thread (via queue processing).
+        """
         logger.info("showing_input_window")
         input_window = InputWindow(self._on_text_submitted)
         input_window.show()
 
     def _on_text_submitted(self, text: str):
         """Handle text submission from input window."""
+        logger.info("text_submitted", length=len(text))
+
         # Extract text (handles URLs)
         extracted_text = self._text_extractor.extract(text)
         self._current_text = extracted_text
@@ -184,16 +272,56 @@ class PiperTTSApp:
         self._tray_app._is_playing = True
         self._tray_app._is_paused = False
 
+    def _shutdown(self):
+        """Shutdown the application gracefully."""
+        logger.info("shutting_down")
+
+        # Stop audio playback
+        self._audio_player.stop()
+
+        # Stop hotkey listener if running
+        self._hotkey_manager.stop()
+
+        # Stop pystray icon
+        self._tray_app.stop()
+
+        # Quit tkinter mainloop
+        self._tk_root.quit()
+
     def run(self):
         """Start the application."""
         logger.info("starting_application")
 
-        # Start hotkey listener
-        self._hotkey_manager.start()
-        logger.debug("hotkey_manager_started")
+        # NOTE: Global hotkeys are disabled on macOS due to threading conflicts.
+        # pynput's GlobalHotKeys uses Core Foundation run loops which conflict
+        # with both pystray (NSApplication) and tkinter when running together.
+        # This causes GIL errors: "PyEval_RestoreThread: the function must be
+        # called with the GIL held, but the GIL is released"
+        #
+        # To re-enable hotkeys, either:
+        # 1. Use a macOS-native hotkey solution (e.g., PyObjC + Carbon)
+        # 2. Run pynput in a completely isolated process
+        # 3. Use tkinter's bind() for window-specific shortcuts instead
+        if sys.platform != "darwin":
+            self._hotkey_manager.start()
+            logger.debug("hotkey_manager_started")
+        else:
+            logger.warning("hotkeys_disabled_macos",
+                         reason="pynput conflicts with pystray/tkinter on macOS")
 
-        # Run tray app (blocking)
-        self._tray_app.run()
+        # Start queue processing on the main thread
+        self._tk_root.after(50, self._process_ui_queue)
+        logger.debug("queue_processing_started")
+
+        # Run pystray detached - this allows it to work alongside tkinter
+        # On macOS, run_detached() is required when integrating with other mainloops
+        logger.info("starting_tray_detached")
+        self._tray_app.run_detached()
+
+        # Run tkinter mainloop on the main thread (REQUIRED on macOS)
+        # This is the primary event loop - all GUI operations happen here
+        logger.info("starting_tkinter_mainloop")
+        self._tk_root.mainloop()
 
         logger.info("application_stopped")
 

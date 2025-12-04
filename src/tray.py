@@ -64,9 +64,15 @@ class TrayApplication:
 
         Returns:
             pystray Menu object
+
+        Note:
+            We use lambdas to wrap method calls so that when main.py replaces
+            the methods (e.g., self._read_text = ...), the menu items will
+            call the new implementations. Without lambdas, the menu would
+            hold direct references to the original stub methods.
         """
         return Menu(
-            MenuItem("Read Text...", self._read_text),
+            MenuItem("Read Text...", lambda icon, item: self._read_text(icon, item)),
             Menu.SEPARATOR,
             MenuItem(
                 "Speed",
@@ -81,17 +87,17 @@ class TrayApplication:
             ),
             MenuItem(
                 lambda _: self._get_play_pause_text(),
-                self._play_pause,
+                lambda icon, item: self._play_pause(icon, item),
             ),
-            MenuItem("Stop", self._stop),
+            MenuItem("Stop", lambda icon, item: self._stop(icon, item)),
             MenuItem(
                 "Download MP3",
-                self._download,
+                lambda icon, item: self._download(icon, item),
                 enabled=self._download_enabled,
             ),
             Menu.SEPARATOR,
-            MenuItem("Settings", self._open_settings),
-            MenuItem("Quit", self._quit),
+            MenuItem("Settings", lambda icon, item: self._open_settings(icon, item)),
+            MenuItem("Quit", lambda icon, item: self._quit(icon, item)),
         )
 
     def _get_play_pause_text(self) -> str:
@@ -217,8 +223,36 @@ class TrayApplication:
             self._icon.stop()
 
     def run(self):
-        """Start the tray application."""
+        """Start the tray application (blocking).
+
+        This blocks the calling thread. On macOS, this must be called
+        from the main thread as it uses NSApplication internally.
+        """
         logger.info("starting_tray_icon")
         if self._icon:
             self._icon.run()
         logger.info("tray_icon_stopped")
+
+    def run_detached(self):
+        """Start the tray application in detached mode.
+
+        This is required on macOS when integrating with another mainloop
+        (e.g., tkinter). It allows pystray to run alongside the other
+        framework's event loop without blocking.
+
+        See: https://pystray.readthedocs.io/en/latest/reference.html
+        """
+        logger.info("starting_tray_icon_detached")
+        if self._icon:
+            self._icon.run_detached()
+        logger.debug("tray_icon_running_detached")
+
+    def stop(self):
+        """Stop the tray application.
+
+        This can be called from any thread to stop the icon.
+        """
+        logger.info("stopping_tray_icon")
+        if self._icon:
+            self._icon.stop()
+        logger.debug("tray_icon_stop_requested")
