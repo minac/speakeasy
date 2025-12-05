@@ -70,14 +70,27 @@ class AudioPlayer:
             audio_data: Audio samples as numpy array
         """
         logger.debug("play_called", audio_samples=len(audio_data))
+
+        # Stop any existing playback OUTSIDE the lock to avoid deadlock
+        # The stream callbacks may try to acquire the lock
+        old_stream = None
         with self._lock:
-            # Stop any existing playback
             if self._stream is not None:
-                logger.debug("stopping_existing_stream")
-                self._stream.stop()
-                self._stream.close()
+                logger.debug("storing_stream_reference_for_cleanup")
+                old_stream = self._stream
                 self._stream = None
 
+        # Close the old stream outside the lock
+        if old_stream is not None:
+            logger.debug("stopping_existing_stream")
+            try:
+                old_stream.stop()
+                old_stream.close()
+            except Exception as e:
+                logger.warning("error_closing_stream", error=str(e))
+
+        # Now start new playback with the lock
+        with self._lock:
             self._audio_data = audio_data
             self._position = 0
             logger.debug("starting_playback_stream")
