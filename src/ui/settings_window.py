@@ -191,10 +191,10 @@ class SettingsWindow:
         button_frame = tk.Frame(main_frame, bg="white")
         button_frame.grid(row=3, column=0, columnspan=3, pady=(20, 0), sticky="e")
 
-        # Cancel button (secondary)
-        cancel_btn = tk.Button(
+        # Close button (secondary)
+        close_btn = tk.Button(
             button_frame,
-            text="Cancel",
+            text="Close",
             command=self._on_cancel,
             font=("SF Pro Text", 13),
             relief=tk.FLAT,
@@ -205,7 +205,7 @@ class SettingsWindow:
             padx=25,
             pady=8,
         )
-        cancel_btn.pack(side=tk.LEFT, padx=(0, 8))
+        close_btn.pack(side=tk.LEFT, padx=(0, 8))
 
         # Save button (primary, Mac-style)
         save_btn = tk.Button(

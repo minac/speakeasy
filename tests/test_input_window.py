@@ -120,7 +120,7 @@ class TestInputWindow:
         mock_text.pack.assert_called()
 
     def test_buttons_created(self, mocker):
-        """Should create play, stop, and download buttons."""
+        """Should create play, stop, download, and close buttons."""
         callback = mocker.Mock()
         mock_tk = mocker.patch("src.ui.input_window.tk")
         mock_button = mocker.Mock()
@@ -128,8 +128,8 @@ class TestInputWindow:
 
         InputWindow(callback)
 
-        # Should create 3 buttons (Download, Play, and Stop)
-        assert mock_tk.Button.call_count == 3
+        # Should create 4 buttons (Download, Close, Play, and Stop)
+        assert mock_tk.Button.call_count == 4
 
-        # Should pack download and play buttons initially (not stop)
-        assert mock_button.pack.call_count == 2
+        # Should pack download, close, and play buttons initially (not stop)
+        assert mock_button.pack.call_count == 3

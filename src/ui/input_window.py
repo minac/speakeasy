@@ -116,9 +116,13 @@ class InputWindow:
         button_frame = tk.Frame(main_frame, bg="white")
         button_frame.pack(fill=tk.X)
 
+        # Left side buttons frame
+        left_buttons = tk.Frame(button_frame, bg="white")
+        left_buttons.pack(side=tk.LEFT)
+
         # Download button (left side, initially disabled)
         self._download_btn = tk.Button(
-            button_frame,
+            left_buttons,
             text="Download MP3",
             command=self._on_download,
             bg="#34C759",  # macOS green
@@ -134,6 +138,22 @@ class InputWindow:
             state=tk.DISABLED,  # Initially disabled
         )
         self._download_btn.pack(side=tk.LEFT)
+
+        # Close button (secondary)
+        close_btn = tk.Button(
+            left_buttons,
+            text="Close",
+            command=lambda: self._window.destroy(),
+            font=("SF Pro Text", 13),
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=0,
+            bg="white",
+            fg="#86868b",
+            padx=25,
+            pady=8,
+        )
+        close_btn.pack(side=tk.LEFT, padx=(8, 0))
 
         # Play button (Mac-style rounded)
         self._play_btn = tk.Button(
