@@ -8,7 +8,7 @@ class TestTrayApplication:
     """Test suite for TrayApplication."""
 
     def test_menu_has_required_items(self, mocker):
-        """Should have Read Text, speed, download, settings, quit."""
+        """Should have Read Text, settings, quit."""
         mock_icon = mocker.patch("src.tray.pystray.Icon")
 
         TrayApplication()
@@ -23,35 +23,10 @@ class TestTrayApplication:
         # Should have menu items for:
         # - Read Text
         # - Separator
-        # - Speed submenu
-        # - Download
-        # - Separator
         # - Settings
         # - Quit
-        assert len(menu_items) == 7
+        assert len(menu_items) == 4
 
-    def test_speed_menu_has_options(self, mocker):
-        """Should have speed options from 0.5x to 2.0x."""
-        mock_icon = mocker.patch("src.tray.pystray.Icon")
-
-        TrayApplication()
-
-        # Get the menu passed to Icon constructor
-        icon_call_kwargs = mock_icon.call_args[1]
-        menu = icon_call_kwargs["menu"]
-        menu_items = menu._items
-
-        # Find speed submenu (third item after Read Text and separator)
-        speed_item = menu_items[2]
-
-        # Speed item should have submenu (check submenu property)
-        assert hasattr(speed_item, "submenu")
-        speed_submenu = speed_item.submenu
-
-        # Speed submenu should have 6 options (0.5x to 2.0x)
-        assert speed_submenu is not None
-        speed_options = speed_submenu._items
-        assert len(speed_options) == 6
 
     def test_play_pause_toggles_text(self, mocker):
         """Should show Play when stopped, Stop when playing."""
@@ -86,20 +61,6 @@ class TestTrayApplication:
         app._sample_rate = 22050
         assert app._has_audio()
 
-    def test_download_callback_disabled_when_no_audio(self, mocker):
-        """Should return False for download enabled when no audio."""
-        mocker.patch("src.tray.pystray.Icon")
-        mocker.patch("src.tray.pystray.Menu")
-
-        app = TrayApplication()
-
-        # Should be disabled when no audio
-        assert not app._download_enabled(None)
-
-        # Should be enabled when audio available
-        app._audio_data = [1, 2, 3]
-        app._sample_rate = 22050
-        assert app._download_enabled(None)
 
     def test_run_starts_icon(self, mocker):
         """Should start the pystray icon."""
@@ -127,18 +88,6 @@ class TestTrayApplication:
         # Should call icon.stop()
         mock_icon_instance.stop.assert_called_once()
 
-    def test_speed_change_callback(self, mocker):
-        """Should update speed when speed menu item clicked."""
-        mocker.patch("src.tray.pystray.Icon")
-        mocker.patch("src.tray.pystray.Menu")
-
-        app = TrayApplication()
-
-        # Change speed to 1.5x
-        app._change_speed(None, None, 1.5)
-
-        # Should update internal state
-        assert app._speed == 1.5
 
     def test_initial_state(self, mocker):
         """Should initialize with correct default state."""
@@ -150,6 +99,5 @@ class TestTrayApplication:
         # Should start in stopped state
         assert not app._is_playing
         assert not app._is_paused
-        assert app._speed == 1.0
         assert app._audio_data is None
         assert app._sample_rate is None

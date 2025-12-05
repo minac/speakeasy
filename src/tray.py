@@ -19,7 +19,6 @@ class TrayApplication:
         logger.info("initializing_tray_app")
         self._is_playing = False
         self._is_paused = False
-        self._speed = 1.0
         self._audio_data: np.ndarray | None = None
         self._sample_rate: int | None = None
         self._icon = None
@@ -82,41 +81,6 @@ class TrayApplication:
         return Menu(
             MenuItem("Read Text...", lambda icon, item: self._read_text(icon, item)),
             Menu.SEPARATOR,
-            MenuItem(
-                "Speed",
-                Menu(
-                    MenuItem(
-                        lambda _: "✓ 0.5x" if self._speed == 0.5 else "0.5x",
-                        lambda: self._change_speed(None, None, 0.5),
-                    ),
-                    MenuItem(
-                        lambda _: "✓ 0.75x" if self._speed == 0.75 else "0.75x",
-                        lambda: self._change_speed(None, None, 0.75),
-                    ),
-                    MenuItem(
-                        lambda _: "✓ 1.0x" if self._speed == 1.0 else "1.0x",
-                        lambda: self._change_speed(None, None, 1.0),
-                    ),
-                    MenuItem(
-                        lambda _: "✓ 1.25x" if self._speed == 1.25 else "1.25x",
-                        lambda: self._change_speed(None, None, 1.25),
-                    ),
-                    MenuItem(
-                        lambda _: "✓ 1.5x" if self._speed == 1.5 else "1.5x",
-                        lambda: self._change_speed(None, None, 1.5),
-                    ),
-                    MenuItem(
-                        lambda _: "✓ 2.0x" if self._speed == 2.0 else "2.0x",
-                        lambda: self._change_speed(None, None, 2.0),
-                    ),
-                ),
-            ),
-            MenuItem(
-                "Download MP3",
-                lambda icon, item: self._download(icon, item),
-                enabled=self._download_enabled,
-            ),
-            Menu.SEPARATOR,
             MenuItem("Settings", lambda icon, item: self._open_settings(icon, item)),
             MenuItem("Quit", lambda icon, item: self._quit(icon, item)),
         )
@@ -129,17 +93,6 @@ class TrayApplication:
         """
         return self._audio_data is not None and self._sample_rate is not None
 
-    def _download_enabled(self, item) -> bool:
-        """Check if download should be enabled.
-
-        Args:
-            item: pystray MenuItem (unused)
-
-        Returns:
-            True if download is available
-        """
-        return self._has_audio()
-
     def _read_text(self, icon, item):
         """Open input window for text/URL entry.
 
@@ -150,17 +103,6 @@ class TrayApplication:
         logger.info("read_text_clicked")
         # TODO: Open input window
         pass
-
-    def _change_speed(self, icon, item, speed: float):
-        """Change playback speed.
-
-        Args:
-            icon: pystray Icon (unused)
-            item: pystray MenuItem (unused)
-            speed: New speed multiplier
-        """
-        self._speed = speed
-        # TODO: Update audio player speed if playing
 
     def _play_pause(self, icon, item):
         """Start playback.
@@ -185,18 +127,6 @@ class TrayApplication:
         self._is_playing = False
         self._is_paused = False
         # TODO: Stop audio player
-
-    def _download(self, icon, item):
-        """Export audio to MP3.
-
-        Args:
-            icon: pystray Icon
-            item: pystray MenuItem
-        """
-        if not self._has_audio():
-            return
-
-        # TODO: Export audio to MP3
 
     def _open_settings(self, icon, item):
         """Open settings window.

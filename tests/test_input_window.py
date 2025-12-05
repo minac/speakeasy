@@ -102,7 +102,7 @@ class TestInputWindow:
         mock_window.geometry.assert_called_once()
         # Verify geometry string includes position
         geometry_call = mock_window.geometry.call_args[0][0]
-        assert "420x240+" in geometry_call  # Should have width x height + x + y format
+        assert "420x280+" in geometry_call  # Should have width x height + x + y format
 
     def test_text_area_created(self, mocker):
         """Should create text area widget."""
@@ -120,7 +120,7 @@ class TestInputWindow:
         mock_text.pack.assert_called()
 
     def test_buttons_created(self, mocker):
-        """Should create play and stop buttons."""
+        """Should create play, stop, and download buttons."""
         callback = mocker.Mock()
         mock_tk = mocker.patch("src.ui.input_window.tk")
         mock_button = mocker.Mock()
@@ -128,8 +128,8 @@ class TestInputWindow:
 
         InputWindow(callback)
 
-        # Should create 2 buttons (Play and Stop)
-        assert mock_tk.Button.call_count == 2
+        # Should create 3 buttons (Download, Play, and Stop)
+        assert mock_tk.Button.call_count == 3
 
-        # Should pack only play button initially
-        assert mock_button.pack.call_count == 1
+        # Should pack download and play buttons initially (not stop)
+        assert mock_button.pack.call_count == 2

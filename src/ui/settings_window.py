@@ -33,7 +33,7 @@ class SettingsWindow:
 
         # Position window in top-right corner (same as input window)
         window_width = 480
-        window_height = 260
+        window_height = 320
 
         # Update to get screen dimensions
         self._window.update_idletasks()
@@ -51,6 +51,7 @@ class SettingsWindow:
 
         # Variables for form fields
         self._voice_var = tk.StringVar()
+        self._speed_var = tk.DoubleVar()
         self._output_dir_var = tk.StringVar()
 
         # Load current settings
@@ -63,6 +64,7 @@ class SettingsWindow:
     def _load_settings(self):
         """Load current settings into variables."""
         self._voice_var.set(self._settings.get("voice"))
+        self._speed_var.set(self._settings.get("speed"))
         self._output_dir_var.set(self._settings.get("output_directory"))
 
     def _create_widgets(self):
@@ -101,6 +103,51 @@ class SettingsWindow:
         )
         voice_combo.grid(row=0, column=1, columnspan=2, sticky="ew", pady=(0, 15))
 
+        # Speed control
+        speed_label = tk.Label(
+            main_frame,
+            text="Speed:",
+            font=("SF Pro Text", 11),
+            fg="#86868b",
+            bg="white",
+            anchor="w",
+        )
+        speed_label.grid(row=1, column=0, sticky="w", pady=(0, 6))
+
+        # Speed frame with slider and value label
+        speed_frame = tk.Frame(main_frame, bg="white")
+        speed_frame.grid(row=1, column=1, columnspan=2, sticky="ew", pady=(0, 15))
+
+        speed_scale = tk.Scale(
+            speed_frame,
+            variable=self._speed_var,
+            from_=0.5,
+            to=2.0,
+            resolution=0.25,
+            orient=tk.HORIZONTAL,
+            font=("SF Pro Text", 11),
+            bg="white",
+            fg="#1d1d1f",
+            highlightthickness=0,
+            troughcolor="#f5f5f7",
+            showvalue=False,
+        )
+        speed_scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        # Value label
+        self._speed_value_label = tk.Label(
+            speed_frame,
+            text=f"{self._speed_var.get()}x",
+            font=("SF Pro Text", 11),
+            fg="#1d1d1f",
+            bg="white",
+            width=5,
+        )
+        self._speed_value_label.pack(side=tk.RIGHT, padx=(8, 0))
+
+        # Update label when slider changes
+        speed_scale.config(command=self._on_speed_change)
+
         # Output directory
         output_label = tk.Label(
             main_frame,
@@ -110,7 +157,7 @@ class SettingsWindow:
             bg="white",
             anchor="w",
         )
-        output_label.grid(row=1, column=0, sticky="w", pady=(0, 6))
+        output_label.grid(row=2, column=0, sticky="w", pady=(0, 6))
 
         output_entry = tk.Entry(
             main_frame,
@@ -121,7 +168,7 @@ class SettingsWindow:
             highlightthickness=0,
             bg="#f5f5f7",
         )
-        output_entry.grid(row=1, column=1, sticky="ew", pady=(0, 15), ipady=6)
+        output_entry.grid(row=2, column=1, sticky="ew", pady=(0, 15), ipady=6)
 
         browse_btn = tk.Button(
             main_frame,
@@ -135,14 +182,14 @@ class SettingsWindow:
             padx=12,
             pady=6,
         )
-        browse_btn.grid(row=1, column=2, padx=(8, 0), pady=(0, 15))
+        browse_btn.grid(row=2, column=2, padx=(8, 0), pady=(0, 15))
 
         # Configure grid weights
         main_frame.columnconfigure(1, weight=1)
 
         # Button frame
         button_frame = tk.Frame(main_frame, bg="white")
-        button_frame.grid(row=2, column=0, columnspan=3, pady=(20, 0), sticky="e")
+        button_frame.grid(row=3, column=0, columnspan=3, pady=(20, 0), sticky="e")
 
         # Cancel button (secondary)
         cancel_btn = tk.Button(
@@ -178,6 +225,14 @@ class SettingsWindow:
         )
         save_btn.pack(side=tk.LEFT)
 
+    def _on_speed_change(self, value):
+        """Update speed value label.
+
+        Args:
+            value: New speed value from slider
+        """
+        self._speed_value_label.config(text=f"{float(value)}x")
+
     def _browse_directory(self):
         """Open directory browser."""
         directory = filedialog.askdirectory(
@@ -189,8 +244,9 @@ class SettingsWindow:
 
     def _on_save(self):
         """Save settings and close."""
-        # Update settings (speed is managed via tray menu now)
+        # Update settings
         self._settings.set("voice", self._voice_var.get())
+        self._settings.set("speed", self._speed_var.get())
         self._settings.set("output_directory", self._output_dir_var.get())
 
         # Save to file

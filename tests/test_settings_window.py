@@ -54,13 +54,14 @@ class TestSettingsWindow:
 
         # Mock new values
         window._voice_var.get.return_value = "en_US-amy-low"
+        window._speed_var.get.return_value = 1.5
         window._output_dir_var.get.return_value = "~/Music"
 
         # Simulate save button click
         window._on_save()
 
-        # Should update settings (voice and output_directory only, speed via tray)
-        assert mock_settings.set.call_count == 2
+        # Should update settings (voice, speed, and output_directory)
+        assert mock_settings.set.call_count == 3
         mock_settings.save.assert_called_once()
 
     def test_cancel_closes_without_saving(self, mocker):
@@ -104,7 +105,7 @@ class TestSettingsWindow:
         mock_window.geometry.assert_called_once()
         # Verify geometry string includes position
         geometry_call = mock_window.geometry.call_args[0][0]
-        assert "480x260+" in geometry_call  # Should have width x height + x + y format
+        assert "480x320+" in geometry_call  # Should have width x height + x + y format
 
     def test_output_directory_field_created(self, mocker):
         """Should create output directory entry."""
@@ -165,12 +166,16 @@ class TestSettingsWindow:
 
         window = SettingsWindow(mock_settings, ["en_US-lessac-medium", "en_US-amy-low"])
 
-        # Should have called get for each setting (voice and output_directory)
-        assert mock_settings.get.call_count == 2
+        # Should have called get for each setting (voice, speed, and output_directory)
+        assert mock_settings.get.call_count == 3
 
         # Check that voice variable was set (appears in call_args_list)
         voice_calls = [call for call in window._voice_var.set.call_args_list]
         assert any(call[0][0] == "en_US-amy-low" for call in voice_calls)
+
+        # Check that speed variable was set
+        speed_calls = [call for call in window._speed_var.set.call_args_list]
+        assert any(call[0][0] == 1.5 for call in speed_calls)
 
         # Check that output directory variable was set
         output_calls = [call for call in window._output_dir_var.set.call_args_list]
