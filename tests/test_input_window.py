@@ -92,7 +92,7 @@ class TestInputWindow:
 
         # Mock dimensions for positioning calculation
         mock_window.winfo_screenwidth.return_value = 1920
-        mock_window.winfo_reqwidth.return_value = 420
+        mock_window.winfo_reqwidth.return_value = 210
         mock_window.winfo_reqheight.return_value = 280
 
         InputWindow(callback)
@@ -104,7 +104,7 @@ class TestInputWindow:
         mock_window.geometry.assert_called_once()
         # Verify geometry string includes position
         geometry_call = mock_window.geometry.call_args[0][0]
-        assert "420x280+" in geometry_call  # Should have width x height + x + y format
+        assert "210x280+" in geometry_call  # Should have width x height + x + y format
 
     def test_text_area_created(self, mocker):
         """Should create text area widget."""

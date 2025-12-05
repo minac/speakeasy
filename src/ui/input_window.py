@@ -76,7 +76,7 @@ class InputWindow:
 
     def _create_widgets(self):
         """Create all window widgets."""
-        # Container with border and rounded corners effect
+        # Container with border (set width for content)
         container = tk.Frame(
             self._window,
             bg="white",
@@ -85,8 +85,8 @@ class InputWindow:
         )
         container.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
 
-        # Set minimum width for text area
-        container.config(width=420)
+        # Set width for text area (half of original 420)
+        container.config(width=210)
 
         # Main frame with padding
         main_frame = tk.Frame(container, padx=18, pady=18, bg="white")
@@ -126,18 +126,54 @@ class InputWindow:
         # Focus the text area so cursor blinks
         self._text_area.focus_set()
 
-        # Button container
+        # Button container (centered)
         button_frame = tk.Frame(main_frame, bg="white")
-        button_frame.pack(fill=tk.X)
+        button_frame.pack(pady=(8, 0))
 
-        # Left side buttons frame
-        left_buttons = tk.Frame(button_frame, bg="white")
-        left_buttons.pack(side=tk.LEFT)
+        # Play button (primary, enabled when text present)
+        self._play_btn = tk.Button(
+            button_frame,
+            text="Play",
+            command=self._on_play,
+            bg="#007AFF",
+            fg="white",
+            font=("SF Pro Text", 13),
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=0,
+            padx=30,
+            pady=8,
+            activebackground="#0051D5",
+            activeforeground="white",
+            state=tk.DISABLED,  # Initially disabled
+            disabledforeground="#CCCCCC",
+            cursor="hand2",
+        )
+        self._play_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-        # Download button (left side, initially disabled)
+        # Stop button (initially hidden, red when playing)
+        self._stop_btn = tk.Button(
+            button_frame,
+            text="Stop",
+            command=self._on_stop,
+            bg="#FF3B30",  # macOS red
+            fg="white",
+            font=("SF Pro Text", 13),
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=0,
+            padx=30,
+            pady=8,
+            activebackground="#D32F2F",
+            activeforeground="white",
+            cursor="hand2",
+        )
+        # Don't pack initially - will show based on state
+
+        # Download button (green, initially disabled)
         self._download_btn = tk.Button(
-            left_buttons,
-            text="Download MP3",
+            button_frame,
+            text="Download",
             command=self._on_download,
             bg="#34C759",  # macOS green
             fg="white",
@@ -150,61 +186,29 @@ class InputWindow:
             activebackground="#30A14E",
             activeforeground="white",
             state=tk.DISABLED,  # Initially disabled
+            disabledforeground="#CCCCCC",
+            cursor="hand2",
         )
-        self._download_btn.pack(side=tk.LEFT)
+        self._download_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-        # Close button (secondary)
+        # Close button (secondary, always enabled)
         close_btn = tk.Button(
-            left_buttons,
+            button_frame,
             text="Close",
             command=lambda: self._window.destroy(),
             font=("SF Pro Text", 13),
             relief=tk.FLAT,
             bd=0,
             highlightthickness=0,
-            bg="white",
-            fg="#86868b",
-            padx=25,
+            bg="#F5F5F7",
+            fg="#1D1D1F",
+            padx=20,
             pady=8,
+            activebackground="#E5E5E7",
+            activeforeground="#1D1D1F",
+            cursor="hand2",
         )
-        close_btn.pack(side=tk.LEFT, padx=(8, 0))
-
-        # Play button (Mac-style rounded)
-        self._play_btn = tk.Button(
-            button_frame,
-            text="Play",
-            command=self._on_play,
-            bg="#007AFF",
-            fg="white",
-            font=("SF Pro Text", 13),
-            relief=tk.FLAT,
-            bd=0,
-            highlightthickness=0,
-            padx=40,
-            pady=8,
-            activebackground="#0051D5",
-            activeforeground="white",
-            state=tk.DISABLED,  # Initially disabled
-        )
-        self._play_btn.pack(side=tk.RIGHT)
-
-        # Stop button (initially hidden)
-        self._stop_btn = tk.Button(
-            button_frame,
-            text="Stop",
-            command=self._on_stop,
-            bg="#FF3B30",  # macOS red
-            fg="white",
-            font=("SF Pro Text", 13),
-            relief=tk.FLAT,
-            bd=0,
-            highlightthickness=0,
-            padx=40,
-            pady=8,
-            activebackground="#D32F2F",
-            activeforeground="white",
-        )
-        # Don't pack initially - will show based on state
+        close_btn.pack(side=tk.LEFT)
 
     def _on_text_change(self, event=None):
         """Handle text area changes to enable/disable Play button."""
@@ -216,9 +220,17 @@ class InputWindow:
             if not self._is_playing:
                 text = self._text_area.get("1.0", tk.END).strip()
                 if text:
-                    self._play_btn.config(state=tk.NORMAL)
+                    self._play_btn.config(
+                        state=tk.NORMAL,
+                        bg="#007AFF",
+                        cursor="hand2"
+                    )
                 else:
-                    self._play_btn.config(state=tk.DISABLED)
+                    self._play_btn.config(
+                        state=tk.DISABLED,
+                        bg="#E5E5E7",
+                        cursor="arrow"
+                    )
 
     def _on_paste_clipboard(self):
         """Paste clipboard content to text area."""
@@ -255,7 +267,11 @@ class InputWindow:
         # Re-enable play button if there's text
         text = self._text_area.get("1.0", tk.END).strip()
         if text:
-            self._play_btn.config(state=tk.NORMAL)
+            self._play_btn.config(
+                state=tk.NORMAL,
+                bg="#007AFF",
+                cursor="hand2"
+            )
 
         # Call stop callback if provided
         if self._stop_callback:
@@ -288,9 +304,17 @@ class InputWindow:
         """
         self._has_audio = available
         if available:
-            self._download_btn.config(state=tk.NORMAL)
+            self._download_btn.config(
+                state=tk.NORMAL,
+                bg="#34C759",
+                cursor="hand2"
+            )
         else:
-            self._download_btn.config(state=tk.DISABLED)
+            self._download_btn.config(
+                state=tk.DISABLED,
+                bg="#E5E5E7",
+                cursor="arrow"
+            )
 
     def show(self):
         """Display the window."""
