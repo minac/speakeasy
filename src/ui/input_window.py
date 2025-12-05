@@ -21,7 +21,20 @@ class InputWindow:
         self._callback = callback
         self._window = tk.Toplevel()
         self._window.title("Piper TTS Reader")
-        self._window.geometry("600x400")
+
+        # Position window in top-right corner
+        window_width = 600
+        window_height = 400
+
+        # Update to get screen dimensions
+        self._window.update_idletasks()
+        screen_width = self._window.winfo_screenwidth()
+
+        # Position near top-right (20px from right edge, 60px from top for menu bar)
+        x_position = screen_width - window_width - 20
+        y_position = 60
+
+        self._window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
         self._window.lift()
         self._window.attributes('-topmost', True)
         self._window.after_idle(self._window.attributes, '-topmost', False)
