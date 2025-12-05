@@ -115,25 +115,12 @@ class PiperTTSEngine:
             )
 
         try:
-            # Synthesize audio using piper's WAV synthesize method
-            # This returns a WAV byte stream
-            import io
-            import wave
+            # Synthesize audio chunks from text
+            audio_chunks = list(self._voice.synthesize(text))
 
-            # Create in-memory WAV file
-            wav_stream = io.BytesIO()
-
-            # Open BytesIO as a wave file in write mode for synthesis
-            with wave.open(wav_stream, 'wb') as wav_write:
-                self._voice.synthesize(text, wav_write)
-
-            # Seek back to beginning to read the data
-            wav_stream.seek(0)
-
-            # Read audio data from WAV
-            with wave.open(wav_stream, 'rb') as wav_file:
-                frames = wav_file.readframes(wav_file.getnframes())
-                audio_data = np.frombuffer(frames, dtype=np.int16)
+            # Concatenate all audio chunks into a single array
+            audio_arrays = [chunk.audio_int16_array for chunk in audio_chunks]
+            audio_data = np.concatenate(audio_arrays) if audio_arrays else np.array([], dtype=np.int16)
 
             # Apply speed adjustment if needed
             if speed != 1.0:

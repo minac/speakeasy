@@ -25,19 +25,15 @@ class TestPiperTTSEngine:
 
     def test_synthesize_returns_audio_data(self, temp_voices_dir, mock_voice_file, mocker):
         """Should return numpy array of audio samples"""
-        import io
-        import wave
-
         import numpy as np
 
-        # Mock piper-tts synthesis
-        def mock_synthesize(text, output_stream):
-            # Configure the wave file (this is what Piper does internally)
-            output_stream.setnchannels(1)
-            output_stream.setsampwidth(2)  # 16-bit
-            output_stream.setframerate(22050)
-            # Write 1024 samples of silence
-            output_stream.writeframes(b"\x00" * 2048)
+        # Mock AudioChunk
+        mock_chunk = mocker.MagicMock()
+        mock_chunk.audio_int16_array = np.array([1, 2, 3, 4, 5], dtype=np.int16)
+
+        # Mock piper-tts synthesis to return audio chunks
+        def mock_synthesize(text):
+            return [mock_chunk]
 
         mocker.patch("piper.PiperVoice.load")
         engine = PiperTTSEngine(voices_dir=temp_voices_dir)
@@ -55,17 +51,15 @@ class TestPiperTTSEngine:
 
     def test_synthesize_with_speed_adjustment(self, temp_voices_dir, mock_voice_file, mocker):
         """Should adjust audio speed correctly"""
-        import io
-        import wave
+        import numpy as np
 
-        # Mock piper-tts synthesis
-        def mock_synthesize(text, output_stream):
-            # Configure the wave file (this is what Piper does internally)
-            output_stream.setnchannels(1)
-            output_stream.setsampwidth(2)  # 16-bit
-            output_stream.setframerate(22050)
-            # Write 44100 samples (2 seconds at 22050 Hz)
-            output_stream.writeframes(b"\x00" * 88200)
+        # Mock AudioChunk with enough samples to test speed adjustment
+        mock_chunk = mocker.MagicMock()
+        mock_chunk.audio_int16_array = np.zeros(44100, dtype=np.int16)  # 2 seconds at 22050 Hz
+
+        # Mock piper-tts synthesis to return audio chunks
+        def mock_synthesize(text):
+            return [mock_chunk]
 
         mocker.patch("piper.PiperVoice.load")
         engine = PiperTTSEngine(voices_dir=temp_voices_dir)
