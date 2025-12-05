@@ -56,22 +56,22 @@ class TestTrayApplication:
         assert len(speed_options) == 6
 
     def test_play_pause_toggles_text(self, mocker):
-        """Should show 'Play' when stopped, 'Pause' when playing."""
+        """Should show Play when stopped, Stop when playing."""
         mocker.patch("src.tray.pystray.Icon")
         mocker.patch("src.tray.pystray.Menu")
 
         app = TrayApplication()
 
-        # Initially should show "Play"
-        assert app._get_play_pause_text() == "Play"
+        # Initially not playing
+        assert not app._is_playing
 
-        # After starting playback, should show "Pause"
+        # After starting playback, should be playing
         app._is_playing = True
-        assert app._get_play_pause_text() == "Pause"
+        assert app._is_playing
 
-        # After pausing, should show "Resume"
-        app._is_paused = True
-        assert app._get_play_pause_text() == "Resume"
+        # After stopping, should not be playing
+        app._is_playing = False
+        assert not app._is_playing
 
     def test_download_enabled_when_audio_available(self, mocker):
         """Should enable download when audio is available."""

@@ -23,16 +23,16 @@ class InputWindow:
         self._window.title("Piper TTS Reader")
 
         # Position window in top-right corner
-        window_width = 600
-        window_height = 400
+        window_width = 400
+        window_height = 280
 
         # Update to get screen dimensions
         self._window.update_idletasks()
         screen_width = self._window.winfo_screenwidth()
 
-        # Position near top-right (20px from right edge, 60px from top for menu bar)
-        x_position = screen_width - window_width - 20
-        y_position = 60
+        # Position very close to top-right (10px from right edge, 40px from top for menu bar)
+        x_position = screen_width - window_width - 10
+        y_position = 40
 
         self._window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
         self._window.lift()
@@ -51,39 +51,50 @@ class InputWindow:
 
     def _create_widgets(self):
         """Create all window widgets."""
-        # Instructions label
+        # Main frame with padding
+        main_frame = tk.Frame(self._window, padx=15, pady=15, bg="white")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Instructions label (Mac-style)
         instructions = tk.Label(
-            self._window,
+            main_frame,
             text="Enter text or paste a URL to read aloud:",
-            pady=10,
+            font=("SF Pro Text", 11),
+            fg="#333333",
+            bg="white",
+            anchor="w",
         )
-        instructions.pack()
+        instructions.pack(pady=(0, 8), fill=tk.X)
 
-        # Text area
+        # Text area frame for border effect
+        text_frame = tk.Frame(main_frame, bg="#d1d1d6", bd=0)
+        text_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 12))
+
+        # Text area (smaller, Mac-style)
         self._text_area = tk.Text(
-            self._window,
+            text_frame,
             wrap=tk.WORD,
-            width=70,
-            height=15,
+            font=("SF Pro Text", 12),
+            relief=tk.FLAT,
+            bd=3,
+            highlightthickness=0,
+            height=8,
         )
-        self._text_area.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
+        self._text_area.pack(fill=tk.BOTH, expand=True)
 
-        # Button frame
-        button_frame = tk.Frame(self._window)
-        button_frame.pack(pady=10)
-
-        # Read button (larger, more prominent)
+        # Read button (Mac-style accent button)
         read_btn = tk.Button(
-            button_frame,
+            main_frame,
             text="Read",
             command=self._on_submit,
-            bg="#007AFF",  # macOS blue
+            bg="#007AFF",
             fg="white",
-            font=("System", 14, "bold"),
-            width=15,
-            height=2,
+            font=("SF Pro Text", 13),
             relief=tk.FLAT,
-            cursor="hand2",
+            bd=0,
+            highlightthickness=0,
+            padx=20,
+            pady=8,
         )
         read_btn.pack()
 
