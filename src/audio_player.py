@@ -69,16 +69,20 @@ class AudioPlayer:
         Args:
             audio_data: Audio samples as numpy array
         """
+        logger.debug("play_called", audio_samples=len(audio_data))
         with self._lock:
             # Stop any existing playback
             if self._stream is not None:
+                logger.debug("stopping_existing_stream")
                 self._stream.stop()
                 self._stream.close()
                 self._stream = None
 
             self._audio_data = audio_data
             self._position = 0
+            logger.debug("starting_playback_stream")
             self._start_playback()
+            logger.debug("playback_stream_started")
 
         logger.info(f"Started playback of {len(audio_data)} samples")
 

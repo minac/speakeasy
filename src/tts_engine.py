@@ -116,15 +116,21 @@ class PiperTTSEngine:
 
         try:
             # Synthesize audio chunks from text
+            logger.debug("calling_piper_synthesize", text_length=len(text))
             audio_chunks = list(self._voice.synthesize(text))
+            logger.debug("piper_synthesis_complete", chunk_count=len(audio_chunks))
 
             # Concatenate all audio chunks into a single array
+            logger.debug("concatenating_audio_chunks")
             audio_arrays = [chunk.audio_int16_array for chunk in audio_chunks]
             audio_data = np.concatenate(audio_arrays) if audio_arrays else np.array([], dtype=np.int16)
+            logger.debug("concatenation_complete", total_samples=len(audio_data))
 
             # Apply speed adjustment if needed
             if speed != 1.0:
+                logger.debug("adjusting_speed", speed=speed, original_samples=len(audio_data))
                 audio_data = self._adjust_speed(audio_data, speed)
+                logger.debug("speed_adjustment_complete", adjusted_samples=len(audio_data))
 
             logger.info(
                 f"Synthesized {len(text)} characters to {len(audio_data)} samples "
@@ -134,6 +140,7 @@ class PiperTTSEngine:
             return audio_data, self._sample_rate
 
         except Exception as e:
+            logger.error("synthesis_failed", error=str(e))
             raise TTSError(f"Synthesis failed: {e}") from e
 
     def _adjust_speed(self, audio_data: np.ndarray, speed: float) -> np.ndarray:

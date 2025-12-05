@@ -261,23 +261,30 @@ class PiperTTSApp:
         logger.info("text_submitted", length=len(text))
 
         # Extract text (handles URLs)
+        logger.debug("extracting_text", is_url=text.startswith("http"))
         extracted_text = self._text_extractor.extract(text)
+        logger.info("text_extracted", extracted_length=len(extracted_text))
         self._current_text = extracted_text
 
         # Synthesize with current speed
         speed = self._settings.get("speed")
+        logger.info("starting_synthesis", text_length=len(extracted_text), speed=speed)
         audio_data, sample_rate = self._tts_engine.synthesize(extracted_text, speed)
+        logger.info("synthesis_complete", audio_samples=len(audio_data), sample_rate=sample_rate)
 
         # Store for export
         self._current_audio = audio_data
         self._current_sample_rate = sample_rate
         self._tray_app._audio_data = audio_data
         self._tray_app._sample_rate = sample_rate
+        logger.debug("audio_stored_for_export")
 
         # Play
+        logger.info("starting_playback")
         self._audio_player.play(audio_data)
         self._tray_app._is_playing = True
         self._tray_app._is_paused = False
+        logger.info("playback_started")
 
     def _shutdown(self):
         """Shutdown the application gracefully."""
