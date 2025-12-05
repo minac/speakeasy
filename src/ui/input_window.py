@@ -11,14 +11,21 @@ logger = get_logger(__name__)
 class InputWindow:
     """Dialog for text or URL input."""
 
-    def __init__(self, callback: Callable[[str], None]):
+    def __init__(
+        self,
+        callback: Callable[[str], None],
+        stop_callback: Callable[[], None] | None = None,
+    ):
         """Initialize InputWindow.
 
         Args:
-            callback: Function to call with submitted text
+            callback: Function to call with submitted text (for Read/Play)
+            stop_callback: Function to call when stop is clicked
         """
         logger.info("creating_input_window")
         self._callback = callback
+        self._stop_callback = stop_callback
+        self._is_playing = False
         self._window = tk.Toplevel()
         self._window.title("Piper TTS Reader")
 
@@ -87,11 +94,11 @@ class InputWindow:
         # Focus the text area so cursor blinks
         self._text_area.focus_set()
 
-        # Read button (Mac-style accent button with proper visibility)
-        read_btn = tk.Button(
+        # Play button (Mac-style accent button with proper visibility)
+        self._play_btn = tk.Button(
             main_frame,
-            text="Read",
-            command=self._on_submit,
+            text="Play",
+            command=self._on_play,
             bg="#007AFF",
             fg="white",
             font=("SF Pro Text", 14, "bold"),
@@ -103,7 +110,25 @@ class InputWindow:
             activebackground="#0051D5",
             activeforeground="white",
         )
-        read_btn.pack()
+        self._play_btn.pack()
+
+        # Stop button (initially hidden)
+        self._stop_btn = tk.Button(
+            main_frame,
+            text="Stop",
+            command=self._on_stop,
+            bg="#FF3B30",  # macOS red
+            fg="white",
+            font=("SF Pro Text", 14, "bold"),
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=0,
+            padx=30,
+            pady=10,
+            activebackground="#D32F2F",
+            activeforeground="white",
+        )
+        # Don't pack initially - will show based on state
 
     def _on_paste_clipboard(self):
         """Paste clipboard content to text area."""
@@ -115,18 +140,45 @@ class InputWindow:
             # Clipboard is empty or unavailable
             pass
 
-    def _on_submit(self):
-        """Submit the entered text."""
+    def _on_play(self):
+        """Play button clicked - start reading."""
         text = self._text_area.get("1.0", tk.END).strip()
 
         if not text:
             return
 
+        # Update button visibility
+        self._is_playing = True
+        self._play_btn.pack_forget()
+        self._stop_btn.pack()
+
         # Call callback with text
         self._callback(text)
 
-        # Close window
-        self._window.destroy()
+    def _on_stop(self):
+        """Stop button clicked - stop playback."""
+        # Update button visibility
+        self._is_playing = False
+        self._stop_btn.pack_forget()
+        self._play_btn.pack()
+
+        # Call stop callback if provided
+        if self._stop_callback:
+            self._stop_callback()
+
+    def set_playing(self, is_playing: bool):
+        """Update playback state externally.
+
+        Args:
+            is_playing: True if playing, False if stopped
+        """
+        self._is_playing = is_playing
+        if is_playing:
+            self._play_btn.pack_forget()
+            self._stop_btn.pack()
+        else:
+            self._stop_btn.pack_forget()
+            self._play_btn.pack()
 
     def show(self):
         """Display the window."""

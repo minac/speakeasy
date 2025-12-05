@@ -17,8 +17,8 @@ class TestInputWindow:
         # Simulate user entering text
         window._text_area.get.return_value = "https://example.com"
 
-        # Simulate submit button click
-        window._on_submit()
+        # Simulate play button click
+        window._on_play()
 
         # Should call callback with text
         callback.assert_called_once_with("https://example.com")
@@ -65,8 +65,8 @@ class TestInputWindow:
         # Simulate empty text area
         window._text_area.get.return_value = "   "
 
-        # Simulate submit button click
-        window._on_submit()
+        # Simulate play button click
+        window._on_play()
 
         # Should not call callback
         callback.assert_not_called()
@@ -120,7 +120,7 @@ class TestInputWindow:
         mock_text.pack.assert_called()
 
     def test_buttons_created(self, mocker):
-        """Should create read button."""
+        """Should create play and stop buttons."""
         callback = mocker.Mock()
         mock_tk = mocker.patch("src.ui.input_window.tk")
         mock_button = mocker.Mock()
@@ -128,8 +128,8 @@ class TestInputWindow:
 
         InputWindow(callback)
 
-        # Should create 1 button (Read)
-        assert mock_tk.Button.call_count == 1
+        # Should create 2 buttons (Play and Stop)
+        assert mock_tk.Button.call_count == 2
 
-        # Should pack the button
+        # Should pack only play button initially
         assert mock_button.pack.call_count == 1

@@ -37,27 +37,29 @@ class TrayApplication:
         logger.info("tray_app_initialized")
 
     def _create_icon_image(self) -> Image.Image:
-        """Create a simple icon image for macOS menu bar.
+        """Create a colorful icon image for macOS menu bar (like Tot).
 
         Returns:
-            PIL Image for the tray icon (template style for macOS)
+            PIL Image for the tray icon (colorful, visible on any background)
         """
         # Create a 22x22 icon (standard macOS menu bar size)
-        # Use RGBA with transparency for proper macOS template rendering
         width = 22
         height = 22
         image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         dc = ImageDraw.Draw(image)
 
-        # Simple speaker icon that works in light/dark mode
-        # Speaker body (small rectangle on left)
-        dc.rectangle([2, 7, 6, 15], fill="black")
-        # Speaker cone (trapezoid)
-        dc.polygon([6, 7, 11, 4, 11, 18, 6, 15], fill="black")
-        # Sound waves (three curved lines)
-        dc.arc([13, 6, 17, 10], start=270, end=90, fill="black", width=2)
-        dc.arc([15, 4, 19, 12], start=270, end=90, fill="black", width=2)
-        dc.arc([17, 2, 21, 14], start=270, end=90, fill="black", width=2)
+        # Colorful circular icon with blue/gradient (like Tot)
+        # Main circle - bright blue
+        dc.ellipse([3, 3, 19, 19], fill="#007AFF", outline="#0051D5")
+
+        # Simple speaker/sound icon inside
+        # Speaker body (white)
+        dc.rectangle([7, 9, 9, 13], fill="white")
+        # Speaker cone (white triangle)
+        dc.polygon([9, 9, 12, 7, 12, 15, 9, 13], fill="white")
+        # Sound waves (white)
+        dc.arc([13, 8, 15, 10], start=270, end=90, fill="white", width=1)
+        dc.arc([14, 7, 16, 11], start=270, end=90, fill="white", width=1)
 
         return image
 
@@ -104,17 +106,6 @@ class TrayApplication:
                         lambda: self._change_speed(None, None, 2.0),
                     ),
                 ),
-            ),
-            MenuItem(
-                "Play",
-                lambda icon, item: self._play_pause(icon, item),
-                visible=lambda _: not self._is_playing,
-                enabled=self._has_audio,
-            ),
-            MenuItem(
-                "Stop",
-                lambda icon, item: self._stop(icon, item),
-                visible=lambda _: self._is_playing,
             ),
             MenuItem(
                 "Download MP3",

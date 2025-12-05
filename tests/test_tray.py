@@ -8,7 +8,7 @@ class TestTrayApplication:
     """Test suite for TrayApplication."""
 
     def test_menu_has_required_items(self, mocker):
-        """Should have Read Text, speed, play/pause, stop, download, settings, quit."""
+        """Should have Read Text, speed, download, settings, quit."""
         mock_icon = mocker.patch("src.tray.pystray.Icon")
 
         TrayApplication()
@@ -24,13 +24,11 @@ class TestTrayApplication:
         # - Read Text
         # - Separator
         # - Speed submenu
-        # - Play/Pause
-        # - Stop
         # - Download
         # - Separator
         # - Settings
         # - Quit
-        assert len(menu_items) == 9
+        assert len(menu_items) == 7
 
     def test_speed_menu_has_options(self, mocker):
         """Should have speed options from 0.5x to 2.0x."""
