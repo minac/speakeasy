@@ -123,7 +123,10 @@ class PiperTTSEngine:
             # Concatenate all audio chunks into a single array
             logger.debug("concatenating_audio_chunks")
             audio_arrays = [chunk.audio_int16_array for chunk in audio_chunks]
-            audio_data = np.concatenate(audio_arrays) if audio_arrays else np.array([], dtype=np.int16)
+            if audio_arrays:
+                audio_data = np.concatenate(audio_arrays)
+            else:
+                audio_data = np.array([], dtype=np.int16)
             logger.debug("concatenation_complete", total_samples=len(audio_data))
 
             # Apply speed adjustment if needed

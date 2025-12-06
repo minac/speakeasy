@@ -33,9 +33,6 @@ class InputWindow:
         self._window = tk.Toplevel()
         self._window.title("Piper TTS Reader")
 
-        # Remove window decorations for cleaner look (must be before geometry)
-        self._window.overrideredirect(True)
-
         # Create UI first to calculate natural size
         self._create_widgets()
 
@@ -57,14 +54,6 @@ class InputWindow:
         self._window.lift()
         self._window.attributes('-topmost', True)
         self._window.after_idle(self._window.attributes, '-topmost', False)
-
-        # macOS rounded corners (requires custom background)
-        try:
-            self._window.attributes('-transparent', True)
-            self._window.config(bg='systemTransparent')
-        except tk.TclError:
-            # Fallback if transparent not supported
-            pass
 
         # Bind ESC key to close window
         self._window.bind('<Escape>', lambda e: self._window.destroy())
@@ -252,7 +241,7 @@ class InputWindow:
         # Update button visibility
         self._is_playing = True
         self._play_btn.pack_forget()
-        self._stop_btn.pack(side=tk.RIGHT)
+        self._stop_btn.pack(side=tk.LEFT, padx=(0, 8))
 
         # Call callback with text
         self._callback(text)
@@ -262,7 +251,7 @@ class InputWindow:
         # Update button visibility
         self._is_playing = False
         self._stop_btn.pack_forget()
-        self._play_btn.pack(side=tk.RIGHT)
+        self._play_btn.pack(side=tk.LEFT, padx=(0, 8))
 
         # Re-enable play button if there's text
         text = self._text_area.get("1.0", tk.END).strip()
@@ -291,10 +280,10 @@ class InputWindow:
         self._is_playing = is_playing
         if is_playing:
             self._play_btn.pack_forget()
-            self._stop_btn.pack(side=tk.RIGHT)
+            self._stop_btn.pack(side=tk.LEFT, padx=(0, 8))
         else:
             self._stop_btn.pack_forget()
-            self._play_btn.pack(side=tk.RIGHT)
+            self._play_btn.pack(side=tk.LEFT, padx=(0, 8))
 
     def set_audio_available(self, available: bool):
         """Enable/disable download button based on audio availability.
@@ -321,4 +310,5 @@ class InputWindow:
         logger.info("showing_input_window")
         self._window.deiconify()
         self._window.focus_force()
+        self._text_area.focus_set()
         logger.debug("input_window_visible")
