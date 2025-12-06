@@ -43,10 +43,10 @@ class TrayApplication:
         logger.info("tray_app_initialized")
 
     def _create_icon_image(self) -> Image.Image:
-        """Load TTS icon from PNG file and convert to macOS template icon.
+        """Load TTS icon from PNG file with transparency preserved.
 
         Returns:
-            PIL Image for the tray icon (monochrome with transparency)
+            PIL Image for the tray icon (colored with alpha channel)
         """
         # Get path to PNG icon (relative to this file)
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -56,23 +56,10 @@ class TrayApplication:
         image = Image.open(png_path)
         image = image.resize((44, 44), Image.Resampling.LANCZOS)
 
-        # Convert to RGBA if not already
+        # Ensure RGBA mode for proper transparency
         if image.mode != 'RGBA':
             image = image.convert('RGBA')
 
-        # Create monochrome version for macOS template icon
-        # Extract alpha channel and use it as the mask
-        data = image.getdata()
-        new_data = []
-        for item in data:
-            # If pixel has any color (not fully transparent), make it black
-            # Keep the alpha channel for proper transparency
-            if item[3] > 0:  # If not fully transparent
-                new_data.append((0, 0, 0, item[3]))  # Black with original alpha
-            else:
-                new_data.append((0, 0, 0, 0))  # Fully transparent
-
-        image.putdata(new_data)
         return image
 
     def _create_menu(self) -> Menu:
