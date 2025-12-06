@@ -45,7 +45,7 @@ class TestInputWindow:
     def test_esc_closes_window(self, mocker):
         """Should close window on ESC key without callback."""
         callback = mocker.Mock()
-        mock_tk = mocker.patch("src.ui.input_window.tk")
+        mocker.patch("src.ui.input_window.tk")
 
         window = InputWindow(callback)
 
