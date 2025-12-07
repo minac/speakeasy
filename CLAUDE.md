@@ -76,13 +76,15 @@
 - pystray for menu bar icon
 - SVG icon (assets/icon.svg) loaded via svglib + reportlab, rendered at 44x44 @2x for retina
 - macOS template icon support (auto-inverts on dark menu bar)
-- Dynamic menu text (Play/Pause/Resume)
-- Speed submenu (6 options: 0.5x - 2.0x)
-- Conditional Download menu item
+- Simple static menu: Read Text, Settings, Quit
+- Note: Playback controls (Play/Pause/Stop) are in InputWindow, NOT tray menu
 
 **UI Windows**:
 - tkinter/ttk for input and settings dialogs
-- InputWindow: text area, clipboard paste, Read/Cancel buttons
+- InputWindow: text area, Play/Stop/Download buttons, clipboard paste
+  - Requires 3 callbacks: `callback` (text submission), `stop_callback`, `download_callback`
+  - Play button becomes Stop button when audio is playing
+  - Download button enabled after synthesis completes
 - SettingsWindow: voice dropdown, speed scale, directory picker
 
 **Logging**:
@@ -115,9 +117,15 @@
 - ✅ Stage 4: Settings Management (Settings) - 7 tests, 86% coverage
 - ✅ Stage 5: MP3 Export (AudioExporter) - 5 tests, 97% coverage
 - ✅ Stage 6: Global Hotkeys (HotkeyManager) - 6 tests, 91% coverage
-- ✅ Stage 7: System Tray (TrayApplication) - 6 tests, 75% coverage
+- ✅ Stage 7: System Tray (TrayApplication) - 6 tests, 74% coverage
 - ✅ Stage 8: UI Windows (InputWindow, SettingsWindow) - 17 tests, 72-93% coverage
 - ✅ Stage 9: Integration & Main App (PiperTTSApp) - main.py complete, 0% test coverage
+- ✅ Bug Fix: Wire InputWindow callbacks (PR #25) - Stop/Download buttons now functional
+
+### Known Issues & Quirks
+- **InputWindow callbacks**: Must pass all 3 callbacks (callback, stop_callback, download_callback) when creating InputWindow in main.py
+- **Tray menu**: Simple static menu only - playback controls are in InputWindow UI, not tray
+- **macOS hotkeys**: Disabled due to pynput/pystray/tkinter threading conflicts (see main.py:309-324)
 
 ### Next Priorities
 1. **Manual Testing & Polish** - End-to-end testing with real voice files
