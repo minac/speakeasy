@@ -253,7 +253,11 @@ class PiperTTSApp:
         This MUST be called from the main thread (via queue processing).
         """
         logger.info("showing_input_window")
-        input_window = InputWindow(self._on_text_submitted)
+        input_window = InputWindow(
+            callback=self._on_text_submitted,
+            stop_callback=self._on_stop,
+            download_callback=self._on_download
+        )
         input_window.show()
 
     def _on_text_submitted(self, text: str):
