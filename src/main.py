@@ -171,13 +171,9 @@ class PiperTTSApp:
         elif state == "PLAYING":
             # Pause
             self._audio_player.pause()
-            self._tray_app._is_playing = False
-            self._tray_app._is_paused = True
         elif state == "PAUSED":
             # Resume
             self._audio_player.resume()
-            self._tray_app._is_playing = True
-            self._tray_app._is_paused = False
 
     def _on_stop(self):
         """Handle stop action."""

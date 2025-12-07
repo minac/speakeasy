@@ -35,16 +35,10 @@ class TestTrayApplication:
 
         app = TrayApplication()
 
-        # Initially not playing
-        assert not app._is_playing
-
-        # After starting playback, should be playing
-        app._is_playing = True
-        assert app._is_playing
-
-        # After stopping, should not be playing
-        app._is_playing = False
-        assert not app._is_playing
+        # Verify tray app is initialized
+        assert app._icon is not None
+        assert app._audio_data is None
+        assert app._sample_rate is None
 
     def test_download_enabled_when_audio_available(self, mocker):
         """Should enable download when audio is available."""
@@ -96,8 +90,6 @@ class TestTrayApplication:
 
         app = TrayApplication()
 
-        # Should start in stopped state
-        assert not app._is_playing
-        assert not app._is_paused
+        # Should start with no audio data
         assert app._audio_data is None
         assert app._sample_rate is None

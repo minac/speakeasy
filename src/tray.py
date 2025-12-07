@@ -17,8 +17,6 @@ class TrayApplication:
     def __init__(self):
         """Initialize TrayApplication."""
         logger.info("initializing_tray_app")
-        self._is_playing = False
-        self._is_paused = False
         self._audio_data: np.ndarray | None = None
         self._sample_rate: int | None = None
         self._icon = None
@@ -119,8 +117,6 @@ class TrayApplication:
             item: pystray MenuItem
         """
         logger.info("play_clicked")
-        self._is_playing = True
-        self._is_paused = False
         logger.info("starting_playback")
         # TODO: Start audio player
 
@@ -131,9 +127,8 @@ class TrayApplication:
             icon: pystray Icon
             item: pystray MenuItem
         """
-        self._is_playing = False
-        self._is_paused = False
         # TODO: Stop audio player
+        pass
 
     def _open_settings(self, icon, item):
         """Open settings window.
