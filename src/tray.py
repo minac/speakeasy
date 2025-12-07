@@ -94,7 +94,7 @@ class TrayApplication:
         """Check if audio data is available.
 
         Returns:
-            True if audio is ready for playback/export
+            True if audio is ready for playback
         """
         return self._audio_data is not None and self._sample_rate is not None
 

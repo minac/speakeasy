@@ -24,11 +24,6 @@ macOS menu bar application for reading text and URLs aloud using Piper TTS.
   - JSON persistence with defaults
   - Nested settings with dot notation
   - Voice, speed, output directory, shortcuts
-- 📥 MP3 export
-  - WAV to MP3 conversion
-  - Smart filename generation from text
-  - Timestamp-based naming
-  - Conflict resolution
 - ⌨️ Global keyboard shortcuts
   - System-wide hotkey registration
   - Configurable key bindings
@@ -36,9 +31,7 @@ macOS menu bar application for reading text and URLs aloud using Piper TTS.
   - Runtime hotkey updates
 - 🎨 Menu bar UI with system tray icon
   - pystray-based tray application
-  - Speed submenu (0.5x - 2.0x)
-  - Dynamic Play/Pause/Resume text
-  - Conditional Download menu item
+  - Simple menu with Read Text, Settings, and Quit
   - SVG icon with macOS template support (auto-inverts on dark menu bar)
 - 🪟 UI Windows
   - Input window for text/URL entry
@@ -53,7 +46,7 @@ macOS menu bar application for reading text and URLs aloud using Piper TTS.
 ## Requirements
 
 - **macOS** (primary target platform)
-- **Python 3.10 - 3.12** (pydub audioop incompatibility with 3.13+)
+- **Python 3.10 - 3.12** (recommended)
 - **PortAudio** for audio output
 - **uv** for package management
 - **Piper voice models** (.onnx files)
@@ -135,7 +128,6 @@ speakeasy/
 │   ├── audio_player.py      # Audio playback controller
 │   ├── text_extractor.py    # URL and text processing
 │   ├── settings.py          # Settings management
-│   ├── export.py            # MP3 export functionality
 │   ├── hotkeys.py           # Global keyboard shortcuts
 │   ├── tray.py              # System tray application
 │   └── ui/
@@ -146,7 +138,6 @@ speakeasy/
 │   ├── test_audio_player.py
 │   ├── test_text_extractor.py
 │   ├── test_settings.py
-│   ├── test_export.py
 │   ├── test_hotkeys.py
 │   ├── test_tray.py
 │   ├── test_input_window.py
