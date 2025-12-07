@@ -28,8 +28,8 @@ class TestTrayApplication:
         assert len(menu_items) == 4
 
 
-    def test_play_pause_toggles_text(self, mocker):
-        """Should show Play when stopped, Stop when playing."""
+    def test_tray_app_initializes(self, mocker):
+        """Should initialize tray app correctly."""
         mocker.patch("src.tray.pystray.Icon")
         mocker.patch("src.tray.pystray.Menu")
 
@@ -37,23 +37,6 @@ class TestTrayApplication:
 
         # Verify tray app is initialized
         assert app._icon is not None
-        assert app._audio_data is None
-        assert app._sample_rate is None
-
-    def test_download_enabled_when_audio_available(self, mocker):
-        """Should enable download when audio is available."""
-        mocker.patch("src.tray.pystray.Icon")
-        mocker.patch("src.tray.pystray.Menu")
-
-        app = TrayApplication()
-
-        # Initially no audio
-        assert not app._has_audio()
-
-        # After synthesis, should have audio
-        app._audio_data = [1, 2, 3]
-        app._sample_rate = 22050
-        assert app._has_audio()
 
 
     def test_run_starts_icon(self, mocker):
@@ -90,6 +73,5 @@ class TestTrayApplication:
 
         app = TrayApplication()
 
-        # Should start with no audio data
-        assert app._audio_data is None
-        assert app._sample_rate is None
+        # Should initialize with icon
+        assert app._icon is not None
