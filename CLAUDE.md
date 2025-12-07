@@ -39,7 +39,6 @@
 - `audio_player.py`: Playback control, state management, callbacks
 - `text_extractor.py`: URL fetching, HTML parsing, content extraction
 - `settings.py`: JSON persistence, config management with dot notation
-- `export.py`: WAV to MP3 conversion, filename generation
 - `hotkeys.py`: Global keyboard shortcuts with pynput
 - `tray.py`: System tray icon with menu (pystray + svglib for SVG icon)
 - `ui/input_window.py`: Text/URL input dialog (tkinter)
@@ -60,12 +59,6 @@
 - Dot notation for nested access (e.g., "shortcuts.play_pause")
 - KeyError validation for unknown settings
 
-**MP3 Export**:
-- pydub for WAV→MP3 conversion
-- Filename: first 5 words + timestamp
-- Conflict resolution with numeric suffixes
-- Auto-creates output directory
-
 **Global Hotkeys**:
 - pynput GlobalHotKeys for system-wide shortcuts
 - Parses "ctrl+shift+p" format to pynput format
@@ -81,10 +74,9 @@
 
 **UI Windows**:
 - tkinter/ttk for input and settings dialogs
-- InputWindow: text area, Play/Stop/Download buttons, clipboard paste
-  - Requires 3 callbacks: `callback` (text submission), `stop_callback`, `download_callback`
+- InputWindow: text area, Play/Stop buttons, clipboard paste
+  - Requires 2 callbacks: `callback` (text submission), `stop_callback`
   - Play button becomes Stop button when audio is playing
-  - Download button enabled after synthesis completes
 - SettingsWindow: voice dropdown, speed scale, directory picker
 
 **Logging**:
@@ -95,8 +87,8 @@
 
 ### Testing Strategy
 - Mock external dependencies (Piper API, sounddevice, filesystem, network, pynput, pystray, tkinter)
-- Unit tests for each module with high coverage (core modules 72-97%)
-- 71 tests total across all modules
+- Unit tests for each module with high coverage (core modules 72-95%)
+- 66 tests total across all modules (removed export tests)
 - CI runs on macOS with Python 3.12 via GitHub Actions
 - No real voice files, network calls, audio hardware, or GUI needed
 - Zero test dependencies on external resources
@@ -105,9 +97,9 @@
 - No real-time speed change during playback (must restart playback)
 - No streaming synthesis (full text→audio upfront)
 - No chunking for long texts (memory constraint risk for very large documents)
-- Main integration layer (main.py) not tested (185 lines at 0% coverage)
+- No MP3 export functionality (removed for simplicity)
+- Main integration layer (main.py) not tested (0% coverage)
 - Some edge cases in audio playback threading/callbacks not fully covered
-- Python 3.13+ not supported (pydub requires audioop, removed in 3.13)
 - Windows/Linux support untested (macOS-first development)
 
 ### Completed Stages
@@ -115,17 +107,17 @@
 - ✅ Stage 2: Audio Playback (AudioPlayer) - 13 tests, 82% coverage
 - ✅ Stage 3: Text Extraction (TextExtractor) - 8 tests, 95% coverage
 - ✅ Stage 4: Settings Management (Settings) - 7 tests, 86% coverage
-- ✅ Stage 5: MP3 Export (AudioExporter) - 5 tests, 97% coverage
-- ✅ Stage 6: Global Hotkeys (HotkeyManager) - 6 tests, 91% coverage
-- ✅ Stage 7: System Tray (TrayApplication) - 6 tests, 74% coverage
-- ✅ Stage 8: UI Windows (InputWindow, SettingsWindow) - 17 tests, 72-93% coverage
-- ✅ Stage 9: Integration & Main App (PiperTTSApp) - main.py complete, 0% test coverage
-- ✅ Bug Fix: Wire InputWindow callbacks (PR #25) - Stop/Download buttons now functional
+- ✅ Stage 5: Global Hotkeys (HotkeyManager) - 6 tests, 91% coverage
+- ✅ Stage 6: System Tray (TrayApplication) - 6 tests, 74% coverage
+- ✅ Stage 7: UI Windows (InputWindow, SettingsWindow) - 17 tests, 72-93% coverage
+- ✅ Stage 8: Integration & Main App (PiperTTSApp) - main.py complete, 0% test coverage
+- ✅ Bug Fix: Wire InputWindow callbacks (PR #25) - Stop button now functional
+- ✅ Simplification: Remove MP3 export feature - Removed export module, pydub dependency
 
 ### Known Issues & Quirks
-- **InputWindow callbacks**: Must pass all 3 callbacks (callback, stop_callback, download_callback) when creating InputWindow in main.py
+- **InputWindow callbacks**: Must pass 2 callbacks (callback, stop_callback) when creating InputWindow in main.py
 - **Tray menu**: Simple static menu only - playback controls are in InputWindow UI, not tray
-- **macOS hotkeys**: Disabled due to pynput/pystray/tkinter threading conflicts (see main.py:309-324)
+- **macOS hotkeys**: Disabled due to pynput/pystray/tkinter threading conflicts (see main.py comments)
 
 ### Next Priorities
 1. **Manual Testing & Polish** - End-to-end testing with real voice files

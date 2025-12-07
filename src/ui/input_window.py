@@ -15,21 +15,17 @@ class InputWindow:
         self,
         callback: Callable[[str], None],
         stop_callback: Callable[[], None] | None = None,
-        download_callback: Callable[[], None] | None = None,
     ):
         """Initialize InputWindow.
 
         Args:
             callback: Function to call with submitted text (for Read/Play)
             stop_callback: Function to call when stop is clicked
-            download_callback: Function to call when download is clicked
         """
         logger.info("creating_input_window")
         self._callback = callback
         self._stop_callback = stop_callback
-        self._download_callback = download_callback
         self._is_playing = False
-        self._has_audio = False
         self._window = tk.Toplevel()
         self._window.title("Piper TTS Reader")
 
@@ -159,27 +155,6 @@ class InputWindow:
         )
         # Don't pack initially - will show based on state
 
-        # Download button (green, initially disabled)
-        self._download_btn = tk.Button(
-            button_frame,
-            text="Download",
-            command=self._on_download,
-            bg="#34C759",  # macOS green
-            fg="white",
-            font=("SF Pro Text", 13),
-            relief=tk.FLAT,
-            bd=0,
-            highlightthickness=0,
-            padx=20,
-            pady=8,
-            activebackground="#30A14E",
-            activeforeground="white",
-            state=tk.DISABLED,  # Initially disabled
-            disabledforeground="#CCCCCC",
-            cursor="hand2",
-        )
-        self._download_btn.pack(side=tk.LEFT, padx=(0, 8))
-
         # Close button (secondary, always enabled)
         close_btn = tk.Button(
             button_frame,
@@ -266,11 +241,6 @@ class InputWindow:
         if self._stop_callback:
             self._stop_callback()
 
-    def _on_download(self):
-        """Download button clicked - export to MP3."""
-        if self._download_callback:
-            self._download_callback()
-
     def set_playing(self, is_playing: bool):
         """Update playback state externally.
 
@@ -284,26 +254,6 @@ class InputWindow:
         else:
             self._stop_btn.pack_forget()
             self._play_btn.pack(side=tk.LEFT, padx=(0, 8))
-
-    def set_audio_available(self, available: bool):
-        """Enable/disable download button based on audio availability.
-
-        Args:
-            available: True if audio is ready for download
-        """
-        self._has_audio = available
-        if available:
-            self._download_btn.config(
-                state=tk.NORMAL,
-                bg="#34C759",
-                cursor="hand2"
-            )
-        else:
-            self._download_btn.config(
-                state=tk.DISABLED,
-                bg="#E5E5E7",
-                cursor="arrow"
-            )
 
     def show(self):
         """Display the window."""

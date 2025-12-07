@@ -23,7 +23,6 @@ import tkinter as tk
 from pathlib import Path
 
 from src.audio_player import AudioPlayer
-from src.export import AudioExporter
 from src.hotkeys import HotkeyManager
 from src.logger import configure_logging, get_logger
 from src.settings import Settings
@@ -85,20 +84,11 @@ class PiperTTSApp:
         # Initialize text extractor
         self._text_extractor = TextExtractor()
 
-        # Initialize audio exporter
-        output_dir = self._settings.get("output_directory")
-        self._audio_exporter = AudioExporter(output_dir)
-
         # Initialize hotkey manager (disabled on macOS due to threading conflicts)
         self._hotkey_manager = HotkeyManager()
 
         # Initialize tray application
         self._tray_app = TrayApplication()
-
-        # Current state
-        self._current_audio = None
-        self._current_sample_rate = None
-        self._current_text = None
 
         # Wire up event handlers
         self._setup_event_handlers()
@@ -122,13 +112,7 @@ class PiperTTSApp:
         # They must NOT directly create tkinter windows. Instead, they post
         # requests to the queue which the main thread processes.
         self._tray_app._read_text = lambda icon, item: self._queue_show_input_window()
-        self._tray_app._play_pause = lambda icon, item: self._on_play_pause()
-        self._tray_app._stop = lambda icon, item: self._on_stop()
-        self._tray_app._download = lambda icon, item: self._on_download()
         self._tray_app._open_settings = lambda icon, item: self._queue_show_settings_window()
-        self._tray_app._change_speed = lambda icon, item, speed: self._on_speed_change(
-            speed
-        )
         self._tray_app._quit = lambda icon, item: self._queue_quit()
 
         # Audio player completion callback
@@ -199,32 +183,6 @@ class PiperTTSApp:
         """Handle stop action."""
         logger.info("stop_clicked")
         self._audio_player.stop()
-        self._tray_app._is_playing = False
-        self._tray_app._is_paused = False
-
-    def _on_download(self):
-        """Handle download MP3 action."""
-        logger.info("download_clicked")
-        if self._current_audio is not None and self._current_sample_rate is not None:
-            output_path = self._audio_exporter.export(
-                self._current_audio, self._current_sample_rate, self._current_text or ""
-            )
-            logger.info("audio_exported", path=str(output_path))
-
-    def _on_speed_change(self, speed: float):
-        """Handle speed change."""
-        logger.info("speed_changed", speed=speed)
-        self._settings.set("speed", speed)
-        self._settings.save()
-        self._tray_app._speed = speed
-
-        # If currently playing, restart with new speed
-        if self._audio_player.get_state() == "PLAYING":
-            self._audio_player.stop()
-            if self._current_audio is not None:
-                self._audio_player.play(
-                    self._current_audio, self._current_sample_rate, speed
-                )
 
     def _on_open_settings(self):
         """Open settings window.
@@ -244,8 +202,6 @@ class PiperTTSApp:
     def _on_playback_complete(self):
         """Handle playback completion."""
         logger.debug("playback_complete")
-        self._tray_app._is_playing = False
-        self._tray_app._is_paused = False
 
     def _show_input_window(self):
         """Show input window for text/URL entry.
@@ -255,8 +211,7 @@ class PiperTTSApp:
         logger.info("showing_input_window")
         input_window = InputWindow(
             callback=self._on_text_submitted,
-            stop_callback=self._on_stop,
-            download_callback=self._on_download
+            stop_callback=self._on_stop
         )
         input_window.show()
 
@@ -268,7 +223,6 @@ class PiperTTSApp:
         logger.debug("extracting_text", is_url=text.startswith("http"))
         extracted_text = self._text_extractor.extract(text)
         logger.info("text_extracted", extracted_length=len(extracted_text))
-        self._current_text = extracted_text
 
         # Synthesize with current speed
         speed = self._settings.get("speed")
@@ -276,18 +230,9 @@ class PiperTTSApp:
         audio_data, sample_rate = self._tts_engine.synthesize(extracted_text, speed)
         logger.info("synthesis_complete", audio_samples=len(audio_data), sample_rate=sample_rate)
 
-        # Store for export
-        self._current_audio = audio_data
-        self._current_sample_rate = sample_rate
-        self._tray_app._audio_data = audio_data
-        self._tray_app._sample_rate = sample_rate
-        logger.debug("audio_stored_for_export")
-
         # Play
         logger.info("starting_playback")
         self._audio_player.play(audio_data)
-        self._tray_app._is_playing = True
-        self._tray_app._is_paused = False
         logger.info("playback_started")
 
     def _shutdown(self):
