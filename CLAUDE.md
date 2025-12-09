@@ -87,11 +87,12 @@
 
 ### Testing Strategy
 - Mock external dependencies (Piper API, sounddevice, filesystem, network, pynput, pystray, tkinter)
-- Unit tests for each module with high coverage (core modules 72-95%)
-- 66 tests total across all modules (removed export tests)
+- Unit tests for each module with high coverage (core modules 75-95%)
+- 65 tests total across all modules
 - CI runs on macOS with Python 3.12 via GitHub Actions
 - No real voice files, network calls, audio hardware, or GUI needed
 - Zero test dependencies on external resources
+- Overall coverage: 68% (749 statements, 238 missed)
 
 ### Current Limitations
 - No real-time speed change during playback (must restart playback)
@@ -103,25 +104,50 @@
 - Windows/Linux support untested (macOS-first development)
 
 ### Completed Stages
-- ✅ Stage 1: TTS Core (PiperTTSEngine) - 8 tests, 91% coverage
+- ✅ Stage 1: TTS Core (PiperTTSEngine) - 8 tests, 90% coverage
 - ✅ Stage 2: Audio Playback (AudioPlayer) - 13 tests, 82% coverage
 - ✅ Stage 3: Text Extraction (TextExtractor) - 8 tests, 95% coverage
 - ✅ Stage 4: Settings Management (Settings) - 7 tests, 86% coverage
 - ✅ Stage 5: Global Hotkeys (HotkeyManager) - 6 tests, 91% coverage
-- ✅ Stage 6: System Tray (TrayApplication) - 6 tests, 74% coverage
-- ✅ Stage 7: UI Windows (InputWindow, SettingsWindow) - 17 tests, 72-93% coverage
+- ✅ Stage 6: System Tray (TrayApplication) - 5 tests, 77% coverage
+- ✅ Stage 7: UI Windows (InputWindow, SettingsWindow) - 17 tests, 75-93% coverage
 - ✅ Stage 8: Integration & Main App (PiperTTSApp) - main.py complete, 0% test coverage
 - ✅ Bug Fix: Wire InputWindow callbacks (PR #25) - Stop button now functional
 - ✅ Simplification: Remove MP3 export feature - Removed export module, pydub dependency
+- ✅ macOS Packaging: PyInstaller spec and build script created (later removed from repo)
 
 ### Known Issues & Quirks
 - **InputWindow callbacks**: Must pass 2 callbacks (callback, stop_callback) when creating InputWindow in main.py
 - **Tray menu**: Simple static menu only - playback controls are in InputWindow UI, not tray
 - **macOS hotkeys**: Disabled due to pynput/pystray/tkinter threading conflicts (see main.py comments)
+- **Build scripts**: PyInstaller spec and build_app.sh were created but removed from repo (exist in git history d1916e2)
+- **Icon assets**: SVG icon available, PNG and ICNS generated from it for different contexts
 
 ### Next Priorities
-1. **Manual Testing & Polish** - End-to-end testing with real voice files
-2. **Integration Tests** - Test main.py coordinator with integrated components
-3. **Bug Fixes** - Address issues found during manual testing
-4. **Performance** - Optimize for large texts, reduce memory usage
-5. **Cross-platform** - Test on Linux/Windows, fix platform-specific issues
+1. **Restore Build Scripts** - Restore speakeasy.spec and build_app.sh from git history if needed
+2. **Manual Testing & Polish** - End-to-end testing with real voice files
+3. **Integration Tests** - Test main.py coordinator with integrated components (currently 0% coverage)
+4. **Increase Test Coverage** - Target 80%+ overall coverage (currently 68%)
+   - Audio player edge cases (stream callbacks, threading)
+   - Settings validation edge cases
+   - UI window interactions
+5. **Bug Fixes** - Address issues found during manual testing
+6. **Performance** - Optimize for large texts, reduce memory usage
+7. **Cross-platform** - Test on Linux/Windows, fix platform-specific issues
+
+### Project Health
+- **Test Count**: 65 tests across 8 test modules
+- **Overall Coverage**: 68% (749 statements, 238 missed)
+- **Module Coverage**:
+  - tts_engine.py: 90%
+  - hotkeys.py: 91%
+  - text_extractor.py: 95%
+  - settings_window.py: 93%
+  - settings.py: 86%
+  - audio_player.py: 82%
+  - tray.py: 77%
+  - logger.py: 75%
+  - input_window.py: 75%
+  - main.py: 0% (148 uncovered statements)
+- **CI**: GitHub Actions runs on macOS with Python 3.12, linting with ruff
+- **Dependencies**: 9 core dependencies, 4 dev dependencies

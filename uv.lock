@@ -588,55 +588,6 @@ wheels = [
 ]
 
 [[package]]
-name = "piper-tts-reader"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "beautifulsoup4" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pillow" },
-    { name = "piper-tts" },
-    { name = "pynput" },
-    { name = "pystray" },
-    { name = "reportlab" },
-    { name = "requests" },
-    { name = "sounddevice" },
-    { name = "structlog" },
-    { name = "svglib" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "pyinstaller" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.12.0" },
-    { name = "numpy", specifier = ">=1.24.0" },
-    { name = "pillow", specifier = ">=9.0.0" },
-    { name = "piper-tts", specifier = ">=1.2.0" },
-    { name = "pyinstaller", marker = "extra == 'dev'", specifier = ">=6.0.0" },
-    { name = "pynput", specifier = ">=1.7.6" },
-    { name = "pystray", specifier = ">=0.19.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.10.0" },
-    { name = "reportlab", specifier = ">=4.4.5" },
-    { name = "requests", specifier = ">=2.28.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
-    { name = "sounddevice", specifier = ">=0.4.6" },
-    { name = "structlog", specifier = ">=24.1.0" },
-    { name = "svglib", specifier = ">=1.6.0" },
-]
-provides-extras = ["dev"]
-
-[[package]]
 name = "pluggy"
 version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1021,6 +972,55 @@ sdist = { url = "https://files.pythonhosted.org/packages/6d/e6/21ccce3262dd4889a
 wheels = [
     { url = "https://files.pythonhosted.org/packages/14/a0/bb38d3b76b8cae341dad93a2dd83ab7462e6dbcdd84d43f54ee60a8dc167/soupsieve-2.8-py3-none-any.whl", hash = "sha256:0cc76456a30e20f5d7f2e14a98a4ae2ee4e5abdc7c5ea0aafe795f344bc7984c", size = 36679, upload-time = "2025-08-27T15:39:50.179Z" },
 ]
+
+[[package]]
+name = "speakeasy"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pillow" },
+    { name = "piper-tts" },
+    { name = "pynput" },
+    { name = "pystray" },
+    { name = "reportlab" },
+    { name = "requests" },
+    { name = "sounddevice" },
+    { name = "structlog" },
+    { name = "svglib" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "pyinstaller" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-mock" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "beautifulsoup4", specifier = ">=4.12.0" },
+    { name = "numpy", specifier = ">=1.24.0" },
+    { name = "pillow", specifier = ">=9.0.0" },
+    { name = "piper-tts", specifier = ">=1.2.0" },
+    { name = "pyinstaller", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "pynput", specifier = ">=1.7.6" },
+    { name = "pystray", specifier = ">=0.19.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.10.0" },
+    { name = "reportlab", specifier = ">=4.4.5" },
+    { name = "requests", specifier = ">=2.28.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+    { name = "sounddevice", specifier = ">=0.4.6" },
+    { name = "structlog", specifier = ">=24.1.0" },
+    { name = "svglib", specifier = ">=1.6.0" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "structlog"

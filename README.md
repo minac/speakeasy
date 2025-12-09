@@ -101,64 +101,35 @@ cd ..
 3. **Look for the speaker icon** in your macOS menu bar (top-right)
 4. **Click the icon** to access the menu
 
-## Building for macOS
+## Building for macOS (Optional)
 
-Create a standalone macOS app bundle that runs in the background and can start on login:
+> **Note**: The PyInstaller build configuration (`speakeasy.spec` and `build_app.sh`) was previously created but has been removed from the repository. You can restore these files from git history (commit `d1916e2`) if you need to create a standalone macOS app bundle.
 
-### Build the App
+The build would create a standalone `.app` bundle that:
+- Runs in the background (no Dock icon, menu bar only)
+- Self-contained with all dependencies
+- Can be added to Login Items for auto-start
+- Works like any native macOS app
+
+### To Restore Build Files
 
 ```bash
-# Run the build script
+# Restore from git history
+git show d1916e2:speakeasy.spec > speakeasy.spec
+git show d1916e2:build_app.sh > build_app.sh
+chmod +x build_app.sh
+
+# Build the app
 ./build_app.sh
 ```
 
-This creates `dist/Speakeasy.app` - a complete macOS application bundle.
+### Alternative: Run from Source
 
-### Install the App
-
-1. **Copy to Applications**:
-   ```bash
-   cp -r dist/Speakeasy.app /Applications/
-   ```
-
-2. **Add voice files**:
-   - Copy your Piper voice files (`.onnx` + `.json`) to:
-   - `/Applications/Speakeasy.app/Contents/Resources/voices/`
-
-3. **Configure auto-start** (optional):
-   - Open **System Settings** → **General** → **Login Items**
-   - Click the **+** button
-   - Select **Speakeasy.app** from Applications
-   - The app will now start automatically on login
-
-### Features of the Packaged App
-
-- Runs in the background (no Dock icon)
-- Lives in the menu bar only
-- Self-contained with all dependencies
-- Auto-start on login (when configured)
-- Works like any native macOS app
-
-### Manual Build (Alternative)
+For development and testing, running from source is simpler:
 
 ```bash
-# Clean previous builds
-rm -rf build dist
-
-# Install dependencies
-uv sync --extra dev
-
-# Build with PyInstaller
-uv run pyinstaller speakeasy.spec --clean --noconfirm
+uv run python -m src.main
 ```
-
-### Technical Details
-
-The build process uses **PyInstaller** to create a native macOS app bundle:
-- `speakeasy.spec` - PyInstaller configuration file
-- All Python dependencies bundled automatically
-- `LSUIElement=True` in Info.plist hides app from Dock
-- Assets and voice directory structure included
 
 ## Development
 
@@ -181,35 +152,54 @@ uv run ruff check --fix src/ tests/
 ```
 speakeasy/
 ├── src/
-│   ├── main.py              # Application entry point & coordinator
-│   ├── logger.py            # Structured logging
-│   ├── tts_engine.py        # Piper TTS wrapper
-│   ├── audio_player.py      # Audio playback controller
-│   ├── text_extractor.py    # URL and text processing
-│   ├── settings.py          # Settings management
-│   ├── hotkeys.py           # Global keyboard shortcuts
-│   ├── tray.py              # System tray application
+│   ├── main.py              # Application entry point & coordinator (148 lines, 0% test coverage)
+│   ├── logger.py            # Structured logging (8 lines, 75% coverage)
+│   ├── tts_engine.py        # Piper TTS wrapper (70 lines, 90% coverage)
+│   ├── audio_player.py      # Audio playback controller (144 lines, 82% coverage)
+│   ├── text_extractor.py    # URL and text processing (37 lines, 95% coverage)
+│   ├── settings.py          # Settings management (51 lines, 86% coverage)
+│   ├── hotkeys.py           # Global keyboard shortcuts (55 lines, 91% coverage)
+│   ├── tray.py              # System tray application (53 lines, 77% coverage)
 │   └── ui/
-│       ├── input_window.py  # Text/URL input dialog
-│       └── settings_window.py # Configuration dialog
-├── tests/
-│   ├── test_tts_engine.py
-│   ├── test_audio_player.py
-│   ├── test_text_extractor.py
-│   ├── test_settings.py
-│   ├── test_hotkeys.py
-│   ├── test_tray.py
-│   ├── test_input_window.py
-│   ├── test_settings_window.py
-│   └── conftest.py
+│       ├── input_window.py  # Text/URL input dialog (92 lines, 75% coverage)
+│       └── settings_window.py # Configuration dialog (91 lines, 93% coverage)
+├── tests/                   # 65 tests across 8 test modules
+│   ├── test_tts_engine.py   # 8 tests
+│   ├── test_audio_player.py # 13 tests
+│   ├── test_text_extractor.py # 8 tests
+│   ├── test_settings.py     # 7 tests
+│   ├── test_hotkeys.py      # 6 tests
+│   ├── test_tray.py         # 5 tests
+│   ├── test_input_window.py # 8 tests
+│   ├── test_settings_window.py # 9 tests
+│   └── conftest.py          # Test fixtures
 ├── assets/
-│   └── icon.svg             # Menu bar icon (SVG)
-├── voices/                  # Piper voice models (.onnx)
-├── config.json             # User settings (auto-generated)
-├── pyproject.toml          # Project metadata and dependencies
-├── CLAUDE.md               # Project instructions for Claude
-└── IMPLEMENTATION_PLAN.md  # Detailed implementation roadmap
+│   ├── icon.svg             # Menu bar icon (SVG)
+│   ├── icon.png             # PNG version (44x44 @2x)
+│   └── icon.icns            # macOS icon for app bundle
+├── voices/                  # Piper voice models (.onnx + .json)
+├── config.json              # User settings (auto-generated)
+├── pyproject.toml           # Project metadata and dependencies
+├── CLAUDE.md                # Project instructions for Claude Code
+└── README.md                # This file
 ```
+
+## Test Coverage
+
+Overall: **68%** (749 statements, 238 missed)
+
+| Module | Coverage | Notes |
+|--------|----------|-------|
+| text_extractor.py | 95% | Highest coverage |
+| settings_window.py | 93% | Nearly complete |
+| hotkeys.py | 91% | Excellent |
+| tts_engine.py | 90% | Core functionality well-tested |
+| settings.py | 86% | Good coverage |
+| audio_player.py | 82% | Some threading edge cases uncovered |
+| tray.py | 77% | Basic functionality covered |
+| input_window.py | 75% | UI interactions partially tested |
+| logger.py | 75% | Minimal module, well-covered |
+| main.py | 0% | Integration layer untested |
 
 ## CI/CD
 
